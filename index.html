@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0a1628">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <title>ARISE - Solo Leveling Fitness</title>
+  <meta name="description" content="Прокачай себя как настоящий Охотник! Фитнес и режим дня в стиле Solo Leveling">
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="assets/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Rajdhani:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <button class="sound-btn" id="sound-toggle" onclick="App.toggleSound()">🔊</button>
+      </div>
+
+      <div class="app-logo">
+        <div class="app-logo-icon">⚔</div>
+        <span class="app-logo-text">ARISE</span>
+      </div>
+
+      <div class="header-right">
+        <button class="lang-btn" id="lang-toggle" onclick="App.toggleLanguage()">EN</button>
+        <button class="settings-btn" onclick="App.navigateTo('settings')">⚙️</button>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="app-main">
+      <!-- Profile Screen -->
+      <section id="screen-profile" class="screen active">
+        <div class="avatar-section">
+          <div class="avatar-container" id="avatar-container">
+            <div class="avatar-glow" id="avatar-glow"></div>
+            <div class="avatar-silhouette">
+              <img src="assets/hunter-avatar.png" alt="Hunter Avatar" class="avatar-image" id="avatar-image">
+            </div>
+            <div class="level-badge">LV. <span id="player-level">1</span></div>
+          </div>
+
+          <div class="player-info">
+            <div class="player-rank-badge" id="player-rank-badge">E-РАНГ</div>
+            <h2 class="player-name" id="player-name">HUNTER</h2>
+            <div class="player-gold" id="player-gold">
+              <span class="gold-icon">🪙</span> <span id="gold-amount">0</span> <span class="gold-label">GOLD</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rank Info Card -->
+        <div class="card rank-card" id="rank-card">
+          <div class="rank-info">
+            <div class="rank-icon" id="rank-icon">🔰</div>
+            <div class="rank-details">
+              <div class="rank-name" id="rank-name">E-РАНГ</div>
+              <div class="rank-description" id="rank-description">Самый слабый уровень...</div>
+            </div>
+          </div>
+          <div class="rank-progress">
+            <span class="rank-progress-text">До <span id="next-rank-name">D-РАНГА</span>: <span
+                id="levels-to-next">4</span> уровней</span>
+          </div>
+        </div>
+
+        <!-- XP Bar -->
+        <div class="xp-section mb-lg">
+          <div class="xp-header">
+            <span class="xp-label">EXP</span>
+            <span class="xp-value"><span id="current-xp">0</span> / <span id="max-xp">100</span></span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-bar-fill" id="xp-bar" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Stats Card -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">📊</div>
+            <h3 class="card-title">ХАРАКТЕРИСТИКИ</h3>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-item str" title="Сила — прокачивается силовыми упражнениями">
+              <span class="stat-label" data-stat="str">СИЛ</span>
+              <span class="stat-value" id="stat-str">10</span>
+            </div>
+            <div class="stat-item vit" title="Выносливость — кардио и бег">
+              <span class="stat-label" data-stat="vit">ВЫН</span>
+              <span class="stat-value" id="stat-vit">10</span>
+            </div>
+            <div class="stat-item agi" title="Ловкость — активность в течение дня">
+              <span class="stat-label" data-stat="agi">ЛОВ</span>
+              <span class="stat-value" id="stat-agi">10</span>
+            </div>
+            <div class="stat-item int" title="Интеллект — чтение, медитация">
+              <span class="stat-label" data-stat="int">ИНТ</span>
+              <span class="stat-value" id="stat-int">10</span>
+            </div>
+            <div class="stat-item sen" style="grid-column: span 2;" title="Дисциплина — соблюдение режима дня">
+              <span class="stat-label" data-stat="sen">ДИС</span>
+              <span class="stat-value" id="stat-sen">10</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Streak Card -->
+        <div class="card">
+          <div class="streak-display">
+            <span class="streak-icon">🔥</span>
+            <div>
+              <div class="streak-count" id="streak-count">0</div>
+              <div class="streak-label">дней подряд</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Quests Screen -->
+      <section id="screen-quests" class="screen">
+        <div class="quest-panel">
+          <div class="quest-panel-header">
+            <div class="quest-panel-icon">❗</div>
+            <div class="quest-panel-title">КВЕСТЫ</div>
+            <button class="edit-quests-btn" onclick="App.navigateTo('settings')">✏️</button>
+          </div>
+
+          <div class="quest-subtitle">
+            [Ежедневный квест: <strong>Режим тренировки начался.</strong>]
+          </div>
+
+          <div class="quest-divider"></div>
+
+          <h3 class="quest-goals-title">ЦЕЛИ</h3>
+
+          <div class="quest-list" id="quest-list">
+            <!-- Quests will be rendered here -->
+          </div>
+
+          <div class="warning-banner">
+            <strong>ВНИМАНИЕ:</strong> Невыполнение ежедневного квеста приведёт к соответствующему
+            <strong>штрафу</strong>.
+          </div>
+        </div>
+      </section>
+
+      <!-- Rewards Screen -->
+      <section id="screen-rewards" class="screen">
+
+
+        <div class="card mb-md">
+          <div class="card-header">
+            <div class="card-icon">🎁</div>
+            <h3 class="card-title">МАТЕРИАЛЫ</h3>
+          </div>
+          <div class="rewards-grid" id="rewards-grid">
+            <!-- Rewards will be rendered here -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Settings Screen -->
+      <section id="screen-settings" class="screen">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">⚙️</div>
+            <h3 class="card-title">НАСТРОЙКИ КВЕСТОВ</h3>
+          </div>
+
+          <div class="quest-editor-list" id="quest-editor-list">
+            <!-- Editable quests will be rendered here -->
+          </div>
+
+          <button class="btn btn-primary" id="add-quest-btn" style="width: 100%; margin-top: 16px;"
+            onclick="App.showAddQuestModal()">
+            + Добавить квест
+          </button>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">📜</div>
+            <h3 class="card-title">ЖУРНАЛ ИЗМЕНЕНИЙ</h3>
+          </div>
+          <div class="journal-list" id="journal-list">
+            <!-- Journal entries will be rendered here -->
+          </div>
+        </div>
+
+        <div class="card">
+          <button class="btn btn-secondary" id="reset-quests-btn" style="width: 100%;" onclick="App.resetQuests()">
+            Сбросить к стандартным
+          </button>
+        </div>
+      </section>
+
+      <section id="screen-shop" class="screen">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">🛒</div>
+            <h3 class="card-title" id="title-shop">МАГАЗИН</h3>
+          </div>
+          <div class="shop-grid" id="shop-grid">
+            <!-- Items injected by JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Dungeons Screen -->
+      <section id="screen-dungeons" class="screen">
+        <!-- State 1: Gate Selection -->
+        <div id="dungeon-gates-view">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-icon">⛩️</div>
+              <h3 class="card-title" id="title-dungeons">ВРАТА</h3>
+            </div>
+            <div class="keys-display">
+              Ключи: <span id="key-count">0</span> 🔑
+            </div>
+            <div class="gates-grid" id="gates-grid">
+              <!-- Gates injected by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- State 2: Active Raid -->
+        <div id="dungeon-raid-view" style="display: none;">
+          <div class="raid-container">
+            <div class="boss-container">
+              <div class="boss-name" id="boss-name">BOSS NAME</div>
+              <div class="boss-image" id="boss-image">👹</div>
+              <div class="boss-hp-bar">
+                <div class="boss-hp-fill" id="boss-hp-fill"></div>
+              </div>
+              <div class="boss-hp-text">HP: <span id="boss-hp-text">100/100</span></div>
+            </div>
+
+            <div class="card raid-quests-card">
+              <div class="card-header">
+                <h3 class="card-title" style="color: var(--color-accent-red)">ЗАДАЧИ РЕЙДА</h3>
+              </div>
+              <div class="raid-quest-list" id="raid-quest-list">
+                <!-- Raid quests injected by JS -->
+              </div>
+            </div>
+
+            <button class="btn btn-danger" onclick="App.surrenderRaid()"
+              style="width: 100%; margin-top: 20px; opacity: 0.5;">
+              <span id="surrender-btn-text">Покинуть подземелье</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- History Screen -->
+      <section id="screen-history" class="screen">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">🏅</div>
+            <h3 class="card-title" id="title-achievements">ДОСТИЖЕНИЯ</h3>
+          </div>
+          <div class="achievements-grid" id="achievements-grid">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon">📅</div>
+            <h3 class="card-title" id="title-history">ИСТОРИЯ</h3>
+          </div>
+          <div class="history-list" id="history-list">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+        <div id="history-calendar">
+          <!-- Calendar will be rendered here -->
+        </div>
+  </div>
+
+
+  </section>
+  </main>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-screen="profile">
+      <span class="nav-icon">👤</span>
+      <span class="nav-label">Профиль</span>
+    </button>
+    <button class="nav-item" data-screen="quests">
+      <span class="nav-icon">⚔️</span>
+      <span class="nav-label">Квесты</span>
+    </button>
+    <button class="nav-item" data-screen="rewards">
+      <span class="nav-icon">🎁</span>
+      <span class="nav-label">Награды</span>
+    </button>
+    <button class="nav-item" data-screen="shop">
+      <span class="nav-icon">🛒</span>
+      <span class="nav-label">Магазин</span>
+    </button>
+    <button class="nav-item" data-screen="dungeons">
+      <span class="nav-icon">⛩️</span>
+      <span class="nav-label">Врата</span>
+    </button>
+    <button class="nav-item" data-screen="history">
+      <span class="nav-icon">📊</span>
+      <span class="nav-label">История</span>
+    </button>
+  </nav>
+  </div>
+
+  <!-- Modal for Rewards -->
+  <div class="modal-overlay" id="reward-modal">
+    <div class="modal-content quest-panel" style="width: 90%; max-width: 400px;">
+      <div class="quest-panel-header">
+        <div class="quest-panel-icon" id="modal-icon">📚</div>
+        <div class="quest-panel-title" id="modal-title">НАГРАДА</div>
+        <span class="quest-panel-close" onclick="App.closeModal()">×</span>
+      </div>
+      <div style="padding: 20px;">
+        <h4 id="modal-subtitle" style="color: var(--color-accent-gold); margin-bottom: 15px;"></h4>
+        <div id="modal-content" style="color: var(--color-text-secondary); line-height: 1.6;"></div>
+        <div id="modal-download" style="margin-top: 15px;"></div>
+        <button class="btn btn-primary" style="width: 100%; margin-top: 20px;" onclick="App.closeModal()">
+          Закрыть
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Level Up Modal -->
+  <div class="modal-overlay" id="levelup-modal">
+    <div class="modal-content quest-panel" style="width: 90%; max-width: 400px; text-align: center;">
+      <div class="quest-panel-header">
+        <div class="quest-panel-icon">⬆️</div>
+        <div class="quest-panel-title">LEVEL UP!</div>
+      </div>
+      <div style="padding: 30px;">
+        <div style="font-size: 4rem; margin-bottom: 20px;">🎉</div>
+        <h2 style="color: var(--color-accent-cyan); margin-bottom: 10px;">
+          Уровень <span id="new-level">2</span>!
+        </h2>
+        <p style="color: var(--color-text-secondary); margin-bottom: 20px;">
+          Ты стал сильнее!
+        </p>
+        <div style="background: rgba(0, 255, 136, 0.1); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+          <p style="color: var(--color-accent-green);">
+            +<span id="stat-points-gained">2</span> очков характеристик
+          </p>
+        </div>
+        <button class="btn btn-primary" style="width: 100%;" onclick="App.closeLevelUpModal()">
+          ARISE!
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rank Up Modal -->
+  <div class="modal-overlay" id="rankup-modal">
+    <div class="modal-content quest-panel" style="width: 90%; max-width: 400px; text-align: center;">
+      <div class="quest-panel-header">
+        <div class="quest-panel-icon">🏆</div>
+        <div class="quest-panel-title">RANK UP!</div>
+      </div>
+      <div style="padding: 30px;">
+        <div style="font-size: 4rem; margin-bottom: 20px;" id="rankup-icon">⚔️</div>
+        <h2 id="rankup-name" style="margin-bottom: 10px;">D-РАНГ!</h2>
+        <p id="rankup-description" style="color: var(--color-text-secondary); margin-bottom: 20px;"></p>
+        <button class="btn btn-primary" style="width: 100%;" onclick="App.closeRankUpModal()">
+          ARISE!
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Quest Modal -->
+  <div class="modal-overlay" id="edit-quest-modal">
+    <div class="modal-content quest-panel" style="width: 90%; max-width: 400px;">
+      <div class="quest-panel-header">
+        <div class="quest-panel-icon">✏️</div>
+        <div class="quest-panel-title" id="edit-modal-title">РЕДАКТИРОВАТЬ</div>
+        <span class="quest-panel-close" onclick="App.closeEditModal()">×</span>
+      </div>
+      <div style="padding: 20px;">
+        <input type="hidden" id="edit-quest-id">
+
+        <div class="form-group">
+          <label id="label-name">Название</label>
+          <input type="text" id="edit-quest-name" class="form-input" placeholder="Название квеста">
+        </div>
+
+        <div class="form-group">
+          <label id="label-icon">Иконка</label>
+          <div class="icon-picker" id="icon-picker">
+            <!-- Icons will be rendered here -->
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label id="label-target">Цель (количество)</label>
+          <input type="number" id="edit-quest-target" class="form-input" placeholder="100" min="1">
+        </div>
+
+        <div class="form-group">
+          <label id="label-unit">Единица измерения</label>
+          <input type="text" id="edit-quest-unit" class="form-input" placeholder="мин, км, шт">
+        </div>
+
+        <div class="form-group">
+          <label id="label-stat">Характеристика</label>
+          <select id="edit-quest-stat" class="form-input">
+            <option value="str">STR (Сила)</option>
+            <option value="vit">VIT (Выносливость)</option>
+            <option value="agi">AGI (Ловкость)</option>
+            <option value="int">INT (Интеллект)</option>
+            <option value="sen">SEN (Дисциплина)</option>
+          </select>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+          <button class="btn btn-secondary" id="cancel-edit-btn" style="flex: 1;"
+            onclick="App.closeEditModal()">Отмена</button>
+          <button class="btn btn-primary" id="save-edit-btn" style="flex: 1;"
+            onclick="App.saveQuestEdit()">Сохранить</button>
+        </div>
+
+        <button class="btn btn-danger" style="width: 100%; margin-top: 10px;" id="delete-quest-btn"
+          onclick="App.deleteCurrentQuest()">
+          Удалить квест
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Container -->
+  <div id="notification-container" class="notification-container"></div>
+
+  <!-- Scripts -->
+  <script src="js/storage.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/character.js"></script>
+  <script src="js/quest-editor.js"></script>
+  <script src="js/quests.js"></script>
+  <script src="js/rewards.js"></script>
+  <script src="js/shop.js"></script>
+  <script src="js/history.js"></script>
+  <script src="js/achievements.js"></script>
+  <script src="js/dungeon.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/app.js"></script>
+</body>
+
+</html>
