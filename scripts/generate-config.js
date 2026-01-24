@@ -16,6 +16,7 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     process.exit(1);
 }
 
+// Use JSON.stringify to safely escape values
 const configContent = `/**
  * ARISE Configuration
  * Auto-generated from Vercel environment variables
@@ -23,8 +24,8 @@ const configContent = `/**
  */
 
 const CONFIG = {
-    SUPABASE_URL: '${SUPABASE_URL}',
-    SUPABASE_ANON_KEY: '${SUPABASE_ANON_KEY}'
+    SUPABASE_URL: ${JSON.stringify(SUPABASE_URL)},
+    SUPABASE_ANON_KEY: ${JSON.stringify(SUPABASE_ANON_KEY)}
 };
 
 // Make available globally
@@ -38,6 +39,9 @@ const configPath = path.join(__dirname, '..', 'config.js');
 try {
     fs.writeFileSync(configPath, configContent, 'utf8');
     console.log('✅ config.js generated successfully from environment variables');
+    console.log(`📝 SUPABASE_URL: ${SUPABASE_URL}`);
+    console.log(`📝 SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY.substring(0, 20)}...${SUPABASE_ANON_KEY.substring(SUPABASE_ANON_KEY.length - 10)}`);
+    console.log(`📄 config.js size: ${configContent.length} bytes`);
 } catch (error) {
     console.error('❌ Failed to generate config.js:', error.message);
     process.exit(1);
