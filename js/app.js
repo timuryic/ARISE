@@ -69,6 +69,7 @@ const App = {
       questEditorList: document.getElementById('quest-editor-list'), journalList: document.getElementById('journal-list'),
       rewardModal: document.getElementById('reward-modal'), levelupModal: document.getElementById('levelup-modal'),
       rankupModal: document.getElementById('rankup-modal'), editQuestModal: document.getElementById('edit-quest-modal'),
+      betaWelcomeModal: document.getElementById('beta-welcome-modal'),
       modalTitle: document.getElementById('modal-title'), modalSubtitle: document.getElementById('modal-subtitle'),
       modalContent: document.getElementById('modal-content'), modalIcon: document.getElementById('modal-icon'),
       modalDownload: document.getElementById('modal-download')
@@ -245,9 +246,9 @@ const App = {
   renderGatesView() {
     const grid = this.elements.gatesGrid; grid.innerHTML = '';
     const gates = [
-      { id: 'e', rank: 'E', diff: 'Easy', minLevel: 1 }, { id: 'd', rank: 'D', diff: 'Normal', minLevel: 10 },
-      { id: 'c', rank: 'C', diff: 'Hard', minLevel: 20 }, { id: 'b', rank: 'B', diff: 'Expert', minLevel: 40 },
-      { id: 'a', rank: 'A', diff: 'Master', minLevel: 60 }, { id: 's', rank: 'S', diff: 'Nightmare', minLevel: 80 }
+      { id: 'e', rank: 'E', diff: 'Easy', minLevel: 1 }, { id: 'd', rank: 'D', diff: 'Normal', minLevel: 1 },
+      { id: 'c', rank: 'C', diff: 'Hard', minLevel: 1 }, { id: 'b', rank: 'B', diff: 'Expert', minLevel: 1 },
+      { id: 'a', rank: 'A', diff: 'Master', minLevel: 1 }, { id: 's', rank: 'S', diff: 'Nightmare', minLevel: 1 }
     ];
     gates.forEach(gate => {
       const isLocked = Character.data.level < gate.minLevel;
@@ -508,6 +509,24 @@ const App = {
   closeLevelUpModal() { if (this.elements.levelupModal) this.elements.levelupModal.classList.remove('active'); },
   closeRankUpModal() { if (this.elements.rankupModal) this.elements.rankupModal.classList.remove('active'); },
   closeEditModal() { if (this.elements.editQuestModal) this.elements.editQuestModal.classList.remove('active'); },
+
+  showBetaWelcomeModal() {
+    if (this.elements.betaWelcomeModal) {
+      this.elements.betaWelcomeModal.classList.add('active');
+      SoundManager.play('rankup');
+    }
+  },
+
+  closeBetaWelcomeModal() {
+    if (this.elements.betaWelcomeModal) {
+      this.elements.betaWelcomeModal.classList.remove('active');
+    }
+    // Clear the isNewUser flag after showing welcome
+    if (Character.data && Character.data.isNewUser) {
+      delete Character.data.isNewUser;
+      Character.save();
+    }
+  },
 
   registerServiceWorker() {
     if ('serviceWorker' in navigator) {
@@ -1003,12 +1022,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else if (isLoggedIn) {
       App.showNotification('ARISE!', 'Добро пожаловать, Охотник!', 'success');
 
-      // Auto-check daily login after brief delay ensuring load
+      // Check if this is a new user and show welcome modal
       setTimeout(() => {
-        const dailyStatus = Character.checkDailyLogin();
-        // If we can claim, show modal
-        if (dailyStatus.canClaim) {
-          App.showStreakModal();
+        if (Character.data && Character.data.isNewUser) {
+          App.showBetaWelcomeModal();
+        } else {
+          // Auto-check daily login for returning users
+          const dailyStatus = Character.checkDailyLogin();
+          // If we can claim, show modal
+          if (dailyStatus.canClaim) {
+            App.showStreakModal();
+          }
         }
       }, 1000);
     }

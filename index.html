@@ -708,6 +708,50 @@
     </div>
   </div>
 
+  <!-- Beta Welcome Modal -->
+  <div class="modal-overlay" id="beta-welcome-modal">
+    <div class="modal-content quest-panel" style="width: 90%; max-width: 450px; text-align: center;">
+      <div class="quest-panel-header">
+        <div class="quest-panel-icon">🌟</div>
+        <div class="quest-panel-title">ДОБРО ПОЖАЛОВАТЬ!</div>
+      </div>
+      <div style="padding: 30px;">
+        <div style="font-size: 3.5rem; margin-bottom: 20px;">🎮</div>
+        <h2 style="color: var(--color-accent-cyan); margin-bottom: 15px; font-size: 1.5rem;">
+          Поздравляем с началом бета-тестирования!
+        </h2>
+
+        <div style="background: rgba(255, 215, 0, 0.1); padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid rgba(255, 215, 0, 0.3);">
+          <p style="color: var(--color-accent-gold); font-size: 1.1rem; margin: 0;">
+            🪙 <strong>+2000 GOLD</strong>
+          </p>
+          <p style="color: var(--color-text-secondary); font-size: 0.85rem; margin-top: 5px;">
+            Стартовый бонус начислен!
+          </p>
+        </div>
+
+        <div style="text-align: left; background: rgba(0, 217, 255, 0.05); padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 3px solid var(--color-accent-cyan);">
+          <p style="color: var(--color-text-primary); font-size: 0.9rem; margin: 0 0 8px 0;">
+            <strong>📌 Особенности бета-версии:</strong>
+          </p>
+          <ul style="color: var(--color-text-secondary); font-size: 0.85rem; margin: 0; padding-left: 20px; line-height: 1.6;">
+            <li>Все подземелья доступны с <strong>уровня 1</strong></li>
+            <li>Ключи к подземельям стоят <strong>0 золота</strong></li>
+            <li>Боссы созданы по образу друзей разработчика - возможно узнаешь кого-то! 😄</li>
+          </ul>
+        </div>
+
+        <p style="color: var(--color-text-secondary); font-size: 0.8rem; margin-bottom: 20px;">
+          Спасибо за участие в тестировании! 🙏
+        </p>
+
+        <button class="btn btn-primary" style="width: 100%; font-size: 1.1rem;" onclick="App.closeBetaWelcomeModal()">
+          ARISE! ⚔️
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Notification Container -->
 
   <div id="notification-container" class="notification-container"></div>

@@ -140,16 +140,20 @@ const Character = {
     data: null,
 
     init() {
-        this.data = Storage.load(Storage.KEYS.CHARACTER) || {
-            ...this.defaults,
-            createdAt: new Date().toISOString()
-        };
-        // Grant requested gold
-        this.addGold(500);
+        const existingData = Storage.load(Storage.KEYS.CHARACTER);
+        const isNewUser = !existingData;
 
-        if ((this.data.gold || 0) < 500) {
-            this.data.gold = 500;
+        this.data = existingData || {
+            ...this.defaults,
+            createdAt: new Date().toISOString(),
+            gold: 2000  // Beta testing starting bonus
+        };
+
+        // Only grant starting bonus to brand new users
+        if (isNewUser) {
+            this.data.isNewUser = true;  // Flag for showing welcome modal
         }
+
         this.save();
         return this.data;
     },
