@@ -3,6 +3,7 @@
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![PWA](https://img.shields.io/badge/PWA-ready-orange)
+![Status](https://img.shields.io/badge/status-deployed-success)
 
 **ARISE** — это Progressive Web App (PWA), которое превращает фитнес и самодисциплину в RPG-игру в стиле аниме/манги "Solo Leveling". Выполняй ежедневные квесты, прокачивай персонажа, сражайся с боссами и собирай теневую армию!
 
