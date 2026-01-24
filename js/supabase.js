@@ -3,14 +3,21 @@
  * Handles authentication and cloud sync
  */
 
-const SUPABASE_URL = 'https://jjxwjgqduyanrhgttkzx.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpqeHdqZ3FkdXlhbnJoZ3R0a3p4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwMTg3NzcsImV4cCI6MjA4NDU5NDc3N30.2bUMrkN8cGdpVgW-q1OVEk9bSDBCQOjGXZ6Fdw2m3aI';
+// Load configuration from config.js (not committed to git)
+// If CONFIG is not available, show error
+const SUPABASE_URL = window.CONFIG?.SUPABASE_URL;
+const SUPABASE_ANON_KEY = window.CONFIG?.SUPABASE_ANON_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    console.error('⚠️ CONFIGURATION ERROR: Supabase credentials not found!');
+    console.error('📝 Please copy config.example.js to config.js and add your credentials');
+}
 
 // Supabase client instance (lazy init)
 let _supabase = null;
 
 function getSupabase() {
-    if (!_supabase && window.supabase) {
+    if (!_supabase && window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
         _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     }
     return _supabase;

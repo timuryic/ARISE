@@ -668,7 +668,6 @@ const App = {
     const result = await SupabaseClient.signIn(email, password);
 
     if (result.success) {
-      localStorage.setItem('arise_user_password', password);
       this.hideAuthModal();
       this.renderAll();
       this.showNotification('ARISE!', 'Добро пожаловать обратно, Охотник!', 'success');
@@ -700,7 +699,6 @@ const App = {
     const result = await SupabaseClient.signUp(email, password, hunterName);
 
     if (result.success) {
-      localStorage.setItem('arise_user_password', password);
       this.hideAuthModal();
       this.showNotification('ARISE!', 'Охотник зарегистрирован! Проверьте email для подтверждения.', 'success');
       SoundManager.play('rankup');
@@ -747,13 +745,13 @@ const App = {
     // Email
     document.getElementById('account-email').textContent = user?.email || '—';
 
-    // Password (from localStorage) - now as input
-    const savedPassword = localStorage.getItem('arise_user_password') || '';
+    // Password - hidden for security (managed by Supabase)
     const passwordInput = document.getElementById('account-password');
-    passwordInput.value = savedPassword;
+    passwordInput.value = '••••••••';
+    passwordInput.disabled = true;
     passwordInput.type = 'password';
     this.passwordVisible = false;
-    document.getElementById('password-toggle-btn').textContent = '👁️';
+    document.getElementById('password-toggle-btn').style.display = 'none';
 
     // Nickname
     document.getElementById('account-nickname').value = Character.data.name || 'HUNTER';
@@ -788,12 +786,9 @@ const App = {
   },
 
   savePassword() {
-    const password = document.getElementById('account-password').value;
-    if (password) {
-      localStorage.setItem('arise_user_password', password);
-      this.showNotification('SYSTEM', i18n.currentLang === 'ru' ? 'Пароль сохранён!' : 'Password saved!', 'success');
-      SoundManager.play('complete');
-    }
+    // Password saving removed for security reasons
+    // Supabase manages authentication automatically via secure tokens
+    this.showNotification('SYSTEM', i18n.currentLang === 'ru' ? 'Пароль управляется системой безопасности' : 'Password managed by security system', 'info');
   },
 
   // === STREAK MODAL ===
@@ -965,7 +960,6 @@ const App = {
     const result = await SupabaseClient.updatePassword(password);
 
     if (result.success) {
-      localStorage.setItem('arise_user_password', password);
       this.closeNewPasswordModal();
       this.showNotification('SYSTEM', 'Пароль успешно изменён!', 'success');
       SoundManager.play('levelup');
