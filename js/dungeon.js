@@ -32,9 +32,7 @@ const Dungeon = {
             },
             image: '<img src="assets/bertork_normal.png" alt="High Bertork" style="max-height: 200px;">',
             quotes: [
-                "Я заберу весь твой снюс...",
-                "Твоя душа станет моей!",
-                "Ничтожество!"
+                "Я заберу весь твой снюс..."
             ]
         },
         'c': {
