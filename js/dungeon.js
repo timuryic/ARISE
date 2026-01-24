@@ -49,9 +49,7 @@ const Dungeon = {
             },
             image: '<img src="assets/wizard_normal.png" alt="Stariy Wizard" style="max-height: 200px;">',
             quotes: [
-                "Узри силу моей МЕТЕОРЫ!",
-                "Магия уничтожит тебя!",
-                "Ты не пройдешь!"
+                "Узри силу моей МЕТЕОРЫ!"
             ]
         },
         'b': { nameKey: 'b', hp: 1000, color: '#00ff88', image: '🐕' },
