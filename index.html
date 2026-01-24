@@ -714,6 +714,15 @@
 
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Configuration (loaded from config.js locally, or fallback to empty for Vercel) -->
+  <script>
+    // This will be loaded from config.js in development
+    // For Vercel, config.js will be generated during build
+    window.CONFIG = window.CONFIG || {};
+  </script>
+  <script src="config.js" onerror="console.log('Config.js not found, using environment')"></script>
+
   <script src="js/storage.js"></script>
   <script src="js/i18n.js"></script>
   <script src="js/audio.js"></script>
@@ -727,8 +736,6 @@
   <script src="js/dungeon.js"></script>
   <script src="js/shadows.js"></script>
   <script src="js/particles.js"></script>
-  <!-- Load config before supabase (contains credentials) -->
-  <script src="config.js"></script>
   <script src="js/supabase.js"></script>
   <script src="js/app.js?v=2"></script>
 </body>
