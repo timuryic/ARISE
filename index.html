@@ -24,7 +24,7 @@
     rel="stylesheet">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=2">
   <link rel="stylesheet" href="css/animations.css">
 </head>
 
@@ -62,11 +62,15 @@
 
           <div class="player-info">
             <div class="player-rank-badge" id="player-rank-badge">E-РАНГ</div>
-            <h2 class="player-name" id="player-name">HUNTER</h2>
+            <div class="player-name-row">
+              <h2 class="player-name" id="player-name">HUNTER</h2>
+              <button class="account-btn" id="account-btn" onclick="App.showAccountModal()" title="Account">👤</button>
+            </div>
             <div class="player-gold" id="player-gold">
               <span class="gold-icon">🪙</span> <span id="gold-amount">0</span> <span class="gold-label">GOLD</span>
             </div>
           </div>
+
         </div>
 
         <!-- Rank Info Card -->
@@ -126,7 +130,7 @@
         </div>
 
         <!-- Streak Card -->
-        <div class="card">
+        <div class="card" onclick="App.showStreakModal()" style="cursor: pointer;">
           <div class="streak-display">
             <span class="streak-icon">🔥</span>
             <div>
@@ -136,6 +140,27 @@
           </div>
         </div>
       </section>
+
+      <!-- Streak Reward Modal -->
+      <div class="modal-overlay" id="streak-modal">
+        <div class="modal-content quest-panel" style="width: 95%; max-width: 500px;">
+          <div class="quest-panel-header">
+            <div class="quest-panel-icon">🔥</div>
+            <div class="quest-panel-title">ЕЖЕДНЕВНАЯ НАГРАДА</div>
+            <span class="quest-panel-close" onclick="App.closeStreakModal()">×</span>
+          </div>
+          <div style="padding: 20px;">
+            <div style="text-align: center; margin-bottom: 20px;">
+              <div style="font-size: 3rem; margin-bottom: 10px;">🔥 <span id="modal-streak-count">0</span></div>
+              <p style="color: var(--color-text-secondary);">Дней подряд</p>
+            </div>
+
+            <div class="streak-grid" id="streak-grid">
+              <!-- JS will populate this -->
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- Quests Screen -->
       <section id="screen-quests" class="screen">
@@ -250,6 +275,7 @@
           <div class="raid-container">
             <div class="boss-container">
               <div class="boss-name" id="boss-name">BOSS NAME</div>
+              <div id="boss-bubble" class="boss-speech-bubble">Я заберу весь твой снюс...</div>
               <div class="boss-image" id="boss-image">👹</div>
               <div class="boss-hp-bar">
                 <div class="boss-hp-fill" id="boss-hp-fill"></div>
@@ -266,8 +292,8 @@
               </div>
             </div>
 
-            <button class="btn btn-danger" onclick="App.surrenderRaid()"
-              style="width: 100%; margin-top: 20px; opacity: 0.5;">
+            <button class="btn btn-danger" id="raid-action-btn" onclick="App.surrenderRaid()"
+              style="width: 100%; margin-top: 20px;">
               <span id="surrender-btn-text">Покинуть подземелье</span>
             </button>
           </div>
@@ -456,10 +482,238 @@
     </div>
   </div>
 
+  <!-- Raid Victory Modal -->
+  <div class="modal-overlay" id="victory-modal">
+    <div class="modal-content quest-panel"
+      style="width: 90%; max-width: 450px; text-align: center; border: 2px solid var(--color-accent-gold); box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);">
+      <div class="quest-panel-header">
+        <div class="quest-panel-icon">👑</div>
+        <div class="quest-panel-title" style="color: var(--color-accent-gold);">VICTORY!</div>
+      </div>
+      <div style="padding: 30px;">
+        <div style="font-size: 3rem; margin-bottom: 10px; animation: pulse 2s infinite;">👹 ➡️ 💀</div>
+        <h2 id="victory-boss-name" style="margin-bottom: 20px; color: var(--color-accent-red);">BOSS DEFEATED</h2>
+
+        <div class="card" style="background: rgba(0,0,0,0.3); margin-bottom: 25px;">
+          <h3 style="color: var(--color-text-primary); margin-bottom: 15px; font-size: 1.1rem;">НАГРАДЫ</h3>
+          <div style="display: flex; justify-content: space-around; align-items: center;">
+            <div style="text-align: center;">
+              <div style="font-size: 1.5rem; color: var(--color-accent-cyan);">✨</div>
+              <div style="font-weight: bold; font-size: 1.2rem; color: var(--color-accent-cyan);">+<span
+                  id="victory-xp">0</span></div>
+              <div style="font-size: 0.8rem; color: #888;">EXP</div>
+            </div>
+            <div style="width: 1px; height: 40px; background: #333;"></div>
+            <div style="text-align: center;">
+              <div style="font-size: 1.5rem; color: var(--color-accent-gold);">🪙</div>
+              <div style="font-weight: bold; font-size: 1.2rem; color: var(--color-accent-gold);">+<span
+                  id="victory-gold">0</span></div>
+              <div style="font-size: 0.8rem; color: #888;">GOLD</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" id="victory-claim-btn"
+          style="width: 100%; font-size: 1.2rem; padding: 15px; background: linear-gradient(45deg, var(--color-accent-gold), #ff8c00); border: none;">
+          ЗАБРАТЬ НАГРАДУ
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Auth Modal -->
+  <div class="modal-overlay" id="auth-modal">
+    <div class="modal-content quest-panel" style="width: 90%; max-width: 400px;">
+      <div class="quest-panel-header">
+        <div class="quest-panel-icon">⚔️</div>
+        <div class="quest-panel-title" id="auth-modal-title">ВХОД В СИСТЕМУ</div>
+      </div>
+      <div style="padding: 20px;">
+        <div id="auth-form-login">
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="auth-email" class="form-input" placeholder="hunter@arise.com">
+          </div>
+          <div class="form-group">
+            <label>Пароль</label>
+            <input type="password" id="auth-password" class="form-input" placeholder="••••••••">
+          </div>
+          <div id="auth-error" style="color: var(--color-accent-red); margin-bottom: 10px; display: none;"></div>
+          <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="App.handleLogin()">
+            ВОЙТИ
+          </button>
+          <div style="text-align: center; margin-top: 10px;">
+            <a href="#" onclick="App.showForgotPasswordForm()"
+              style="color: var(--color-accent-gold); font-size: 0.85rem;">Забыли пароль?</a>
+          </div>
+          <div style="text-align: center; margin-top: 15px; color: var(--color-text-secondary);">
+            Нет аккаунта? <a href="#" onclick="App.showRegisterForm()"
+              style="color: var(--color-accent-cyan);">Регистрация</a>
+          </div>
+        </div>
+
+        <div id="auth-form-register" style="display: none;">
+          <div class="form-group">
+            <label>Имя Охотника</label>
+            <input type="text" id="auth-hunter-name" class="form-input" placeholder="HUNTER">
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="auth-reg-email" class="form-input" placeholder="hunter@arise.com">
+          </div>
+          <div class="form-group">
+            <label>Пароль</label>
+            <input type="password" id="auth-reg-password" class="form-input" placeholder="Минимум 6 символов">
+          </div>
+          <div id="auth-reg-error" style="color: var(--color-accent-red); margin-bottom: 10px; display: none;"></div>
+          <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="App.handleRegister()">
+            СОЗДАТЬ ОХОТНИКА
+          </button>
+          <div style="text-align: center; margin-top: 15px; color: var(--color-text-secondary);">
+            Уже есть аккаунт? <a href="#" onclick="App.showLoginForm()"
+              style="color: var(--color-accent-cyan);">Войти</a>
+          </div>
+        </div>
+        <div id="auth-form-forgot" style="display: none;">
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="auth-forgot-email" class="form-input" placeholder="hunter@arise.com">
+          </div>
+          <div id="auth-forgot-error" style="color: var(--color-accent-red); margin-bottom: 10px; display: none;"></div>
+          <div id="auth-forgot-success" style="color: var(--color-accent-green); margin-bottom: 10px; display: none;">
+          </div>
+          <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="App.handleForgotPassword()">
+            ВОССТАНОВИТЬ
+          </button>
+          <div style="text-align: center; margin-top: 15px; color: var(--color-text-secondary);">
+            Вспомнили пароль? <a href="#" onclick="App.showLoginForm()"
+              style="color: var(--color-accent-cyan);">Войти</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- New Password Modal (for password reset) -->
+  <div class="modal-overlay" id="new-password-modal">
+    <div class="modal-content quest-panel" style="width: 90%; max-width: 400px;">
+      <div class="quest-panel-header">
+        <div class="quest-panel-icon">🔐</div>
+        <div class="quest-panel-title">НОВЫЙ ПАРОЛЬ</div>
+      </div>
+      <div style="padding: 20px;">
+        <p style="color: var(--color-text-secondary); margin-bottom: 15px;">
+          Введите новый пароль для вашего аккаунта
+        </p>
+        <div class="form-group">
+          <label>Новый пароль</label>
+          <input type="password" id="new-password-input" class="form-input" placeholder="Минимум 6 символов">
+        </div>
+        <div class="form-group">
+          <label>Подтвердите пароль</label>
+          <input type="password" id="new-password-confirm" class="form-input" placeholder="Повторите пароль">
+        </div>
+        <div id="new-password-error" style="color: var(--color-accent-red); margin-bottom: 10px; display: none;"></div>
+        <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="App.handleSetNewPassword()">
+          СОХРАНИТЬ ПАРОЛЬ
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Account Modal -->
+
+  <div class="modal-overlay" id="account-modal">
+    <div class="modal-content quest-panel" style="width: 90%; max-width: 400px;">
+      <div class="quest-panel-header">
+        <div class="quest-panel-icon">👤</div>
+        <div class="quest-panel-title" id="account-modal-title">АККАУНТ</div>
+        <span class="quest-panel-close" onclick="App.closeAccountModal()">×</span>
+      </div>
+      <div style="padding: 20px;">
+        <!-- Email -->
+        <div class="account-field">
+          <label class="account-label">📧 <span id="label-account-email">Email</span></label>
+          <div class="account-value" id="account-email">—</div>
+        </div>
+
+        <!-- Password -->
+        <div class="account-field">
+          <label class="account-label">🔒 <span id="label-account-password">Пароль</span></label>
+          <div class="account-password-row">
+            <input type="password" id="account-password" class="form-input" style="flex: 1;"
+              placeholder="Введите пароль">
+            <button class="password-toggle-btn" onclick="App.togglePasswordVisibility()"
+              id="password-toggle-btn">👁️</button>
+            <button class="btn btn-small" onclick="App.savePassword()" id="save-password-btn">💾</button>
+          </div>
+        </div>
+
+
+        <!-- Nickname -->
+        <div class="account-field">
+          <label class="account-label">🎮 <span id="label-account-nickname">Никнейм</span></label>
+          <div class="account-nickname-row">
+            <input type="text" id="account-nickname" class="form-input" style="flex: 1;">
+            <button class="btn btn-small" onclick="App.saveNickname()" id="save-nickname-btn">💾</button>
+          </div>
+        </div>
+
+        <div class="account-divider"></div>
+
+        <!-- Stats -->
+        <div class="account-stats-grid">
+          <div class="account-stat">
+            <div class="account-stat-icon">📅</div>
+            <div class="account-stat-info">
+              <div class="account-stat-value" id="account-created">—</div>
+              <div class="account-stat-label" id="label-account-created">Дата регистрации</div>
+            </div>
+          </div>
+          <div class="account-stat">
+            <div class="account-stat-icon">⏱️</div>
+            <div class="account-stat-info">
+              <div class="account-stat-value" id="account-playtime">—</div>
+              <div class="account-stat-label" id="label-account-playtime">Время в игре</div>
+            </div>
+          </div>
+          <div class="account-stat">
+            <div class="account-stat-icon">🏆</div>
+            <div class="account-stat-info">
+              <div class="account-stat-value" id="account-total-xp">0</div>
+              <div class="account-stat-label" id="label-account-xp">Всего XP</div>
+            </div>
+          </div>
+          <div class="account-stat">
+            <div class="account-stat-icon">🎯</div>
+            <div class="account-stat-info">
+              <div class="account-stat-value" id="account-quests">0</div>
+              <div class="account-stat-label" id="label-account-quests">Квестов</div>
+            </div>
+          </div>
+          <div class="account-stat">
+            <div class="account-stat-icon">🔥</div>
+            <div class="account-stat-info">
+              <div class="account-stat-value" id="account-best-streak">0</div>
+              <div class="account-stat-label" id="label-account-streak">Лучшая серия</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-danger" style="width: 100%; margin-top: 20px;" onclick="App.handleLogout()">
+          <span id="logout-btn-text">ВЫЙТИ</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Notification Container -->
+
   <div id="notification-container" class="notification-container"></div>
 
   <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/storage.js"></script>
   <script src="js/i18n.js"></script>
   <script src="js/audio.js"></script>
@@ -471,8 +725,10 @@
   <script src="js/history.js"></script>
   <script src="js/achievements.js"></script>
   <script src="js/dungeon.js"></script>
+  <script src="js/shadows.js"></script>
   <script src="js/particles.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/app.js?v=2"></script>
 </body>
 
 </html>

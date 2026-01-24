@@ -6,9 +6,54 @@ const Dungeon = {
     activeRaid: null,
 
     bosses: {
-        'e': { nameKey: 'e', hp: 50, color: '#808080', image: '<img src="assets/goblin.png" alt="Goblin" style="max-height: 200px;">' },
-        'd': { nameKey: 'd', hp: 150, color: '#4a9eff', image: '🐅' },
-        'c': { nameKey: 'c', hp: 400, color: '#00d9ff', image: '🕷️' },
+        'e': {
+            nameKey: 'e',
+            hp: 50,
+            color: '#808080',
+            // Progressive assets
+            assets: {
+                normal: 'assets/goblin.png',
+                damaged: 'assets/goblin_damaged.png',
+                critical: 'assets/goblin_critical.png',
+                defeated: 'assets/goblin_defeated.png'
+            },
+            // Fallback for others currently
+            image: '<img src="assets/goblin.png" alt="Goblin" style="max-height: 200px;">'
+        },
+        'd': {
+            nameKey: 'd',
+            hp: 150,
+            color: '#d63031', // Red color for demon
+            assets: {
+                normal: 'assets/bertork_normal.png',
+                damaged: 'assets/bertork_damaged.png',
+                critical: 'assets/bertork_critical.png',
+                defeated: 'assets/bertork_defeated.png'
+            },
+            image: '<img src="assets/bertork_normal.png" alt="High Bertork" style="max-height: 200px;">',
+            quotes: [
+                "Я заберу весь твой снюс...",
+                "Твоя душа станет моей!",
+                "Ничтожество!"
+            ]
+        },
+        'c': {
+            nameKey: 'c',
+            hp: 400,
+            color: '#00d9ff',
+            assets: {
+                normal: 'assets/wizard_normal.png',
+                damaged: 'assets/wizard_damaged.png',
+                critical: 'assets/wizard_critical.png',
+                defeated: 'assets/wizard_defeated.png'
+            },
+            image: '<img src="assets/wizard_normal.png" alt="Stariy Wizard" style="max-height: 200px;">',
+            quotes: [
+                "Узри силу моей МЕТЕОРЫ!",
+                "Магия уничтожит тебя!",
+                "Ты не пройдешь!"
+            ]
+        },
         'b': { nameKey: 'b', hp: 1000, color: '#00ff88', image: '🐕' },
         'a': { nameKey: 'a', hp: 2500, color: '#ffd700', image: '⚔️' },
         's': { nameKey: 's', hp: 10000, color: '#ff4757', image: '🐜' }
@@ -72,6 +117,18 @@ const Dungeon = {
 
         this.save();
 
+        // Trigger visual update event if App methods are available
+        if (window.App && App.renderRaidView) {
+            App.renderRaidView();
+            // Trigger shake
+            const bossImg = document.querySelector('#boss-image img') || document.getElementById('boss-image');
+            if (bossImg) {
+                bossImg.classList.remove('boss-hit');
+                void bossImg.offsetWidth; // Trigger reflow
+                bossImg.classList.add('boss-hit');
+            }
+        }
+
         if (this.activeRaid.currentHp === 0) {
             return { success: true, victory: true, damage: quest.damage };
         }
@@ -103,5 +160,27 @@ const Dungeon = {
 
     save() {
         Storage.save('arise_active_raid', this.activeRaid);
+    },
+
+    getBossQuote(rank) {
+        const boss = this.bosses[rank];
+        if (!boss || !boss.quotes || boss.quotes.length === 0) return null;
+        const randomIndex = Math.floor(Math.random() * boss.quotes.length);
+        return boss.quotes[randomIndex];
+    },
+
+    // Helper to get current asset based on HP %
+    getBossAsset(rank, currentHp, maxHp) {
+        const boss = this.bosses[rank];
+        if (!boss.assets) return boss.image; // Fallback
+
+        const pct = (currentHp / maxHp) * 100;
+
+        if (currentHp <= 0) return `<img src="${boss.assets.defeated}" alt="${boss.nameKey}" class="boss-dead" style="max-height: 200px;">`;
+        if (pct <= 50) return `<img src="${boss.assets.critical}" alt="${boss.nameKey}" class="boss-critical" style="max-height: 200px;">`;
+        if (pct <= 70) return `<img src="${boss.assets.damaged}" alt="${boss.nameKey}" style="max-height: 200px;">`;
+
+        return `<img src="${boss.assets.normal}" alt="${boss.nameKey}" style="max-height: 200px;">`;
     }
 };
+

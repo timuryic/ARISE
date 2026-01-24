@@ -7,17 +7,41 @@ const App = {
 
   init() {
     console.log('ARISE System Initializing...');
-    Storage.init(); i18n.init(); Character.init(); Quests.init();
+    Storage.init(); i18n.init(); Character.init(); Quests.init(); Shadows.init();
     Rewards.init(); Shop.init(); Dungeon.init(); History.init(); Achievements.init();
+
+    // Check daily reward
     this.checkAchievements();
-    const dailyReward = Character.checkDailyLogin();
-    if (dailyReward) {
+    const dailyStatus = Character.checkDailyLogin();
+    if (dailyStatus.canClaim) {
       setTimeout(() => {
-        this.showNotification(i18n.t('dailyLogin'), `${i18n.t('streakReward')}: ${dailyReward.gold} Gold!`, 'success');
-        SoundManager.play('levelup');
-      }, 1000);
+        this.showStreakModal();
+      }, 1500);
     }
+
     this.cacheElements(); this.setupEventListeners(); this.renderAll(); this.registerServiceWorker();
+
+    // Auth listeners
+    if (window.SupabaseClient) {
+      window.addEventListener('arise-password-recovery', () => {
+        console.log('Password recovery event received!');
+        App.showNewPasswordModal();
+      });
+
+      window.SupabaseClient.init();
+      window.SupabaseClient.checkSession().then(isLoggedIn => {
+        if (!isLoggedIn) {
+          App.showAuthModal();
+        } else {
+          App.showNotification('ARISE!', 'Добро пожаловать, Охотник!', 'success');
+        }
+      });
+
+      App.checkPasswordRecovery();
+    } else {
+      console.warn('SupabaseClient not available, running in offline mode');
+    }
+
     document.addEventListener('click', () => { SoundManager.init(); SoundManager.play('click'); }, { once: true });
     console.log('ARISE System Online.');
   },
@@ -146,7 +170,7 @@ const App = {
       item.innerHTML = `
         <div class="quest-item-name">${quest.icon} ${i18n.getQuestName(quest)}</div>
         <div class="quest-item-right">
-          <div class="quest-item-progress ${isCompleted ? 'completed' : ''}">${progress} / ${quest.target}${quest.unit || ''}</div>
+          <div class="quest-item-progress ${isCompleted ? 'completed' : ''}">${progress} / ${quest.target}${i18n.t(quest.unit) || quest.unit || ''}</div>
           <div class="quest-checkbox ${isCompleted ? 'checked' : ''}" onclick="App.handleQuestClick('${quest.id}')">${isCompleted ? '✓' : ''}</div>
         </div>`;
       this.elements.questList.appendChild(item);
@@ -240,7 +264,35 @@ const App = {
   renderRaidView() {
     const raid = Dungeon.activeRaid; if (!raid) return;
     this.elements.bossName.textContent = raid.boss.name;
-    this.elements.bossImage.innerHTML = raid.boss.image;
+
+    // Use dynamic asset
+    if (Dungeon.getBossAsset) {
+      this.elements.bossImage.innerHTML = Dungeon.getBossAsset(raid.rank, raid.currentHp, raid.boss.maxHp);
+    } else {
+      this.elements.bossImage.innerHTML = raid.boss.image;
+    }
+
+    // Boss Speech Bubble Logic
+    setTimeout(() => {
+      const bubble = document.getElementById('boss-bubble');
+      if (bubble) {
+        // Critical: Only show if HP is full (Start of fight)
+        const isFullHp = Number(raid.currentHp) >= Number(raid.boss.maxHp);
+
+        if (isFullHp) {
+          const quote = Dungeon.getBossQuote(raid.rank);
+          if (quote) {
+            bubble.textContent = quote;
+            bubble.classList.add('visible');
+          } else {
+            bubble.classList.remove('visible');
+          }
+        } else {
+          bubble.classList.remove('visible');
+        }
+      }
+    }, 200);
+
     const hpPercent = (raid.currentHp / raid.boss.maxHp) * 100;
     this.elements.bossHpFill.style.width = `${hpPercent}%`;
     this.elements.bossHpText.textContent = `${raid.currentHp} / ${raid.boss.maxHp}`;
@@ -251,6 +303,34 @@ const App = {
       item.innerHTML = `<div><div style="font-weight: bold; color: var(--color-accent-red)">${q.text}</div><div style="font-size: 0.8em; color: #aaa">${i18n.t('damageToBoss')}: ${q.damage}</div></div><button class="raid-quest-btn" onclick="App.completeRaidQuest('${q.id}')">${q.completed ? i18n.t('completed') : i18n.t('complete')}</button>`;
       list.appendChild(item);
     });
+
+    // Update Surrender/Claim button
+    // Ensure we select the button regardless of its current class
+    const actionBtn = document.getElementById('raid-action-btn');
+
+    if (actionBtn) {
+      // Remove old event listeners by cloning the node
+      const newBtn = actionBtn.cloneNode(true);
+      actionBtn.parentNode.replaceChild(newBtn, actionBtn);
+
+      if (raid.currentHp <= 0) {
+        newBtn.onclick = () => {
+          const rewards = Dungeon.claimVictory();
+          SoundManager.play('levelup');
+          this.showNotification(i18n.t('victory'), `${i18n.t('gained')}: ${rewards.xp} XP, ${rewards.gold} Gold`, 'success');
+          History.add('RAID_WIN', `Defeated Boss. Gained ${rewards.gold} G`);
+          this.checkAchievements(); this.renderProfile(); this.renderDungeons();
+        };
+        newBtn.querySelector('span').textContent = "ЗАБРАТЬ НАГРАДУ";
+        newBtn.className = "btn btn-primary";
+        newBtn.style.opacity = "1";
+      } else {
+        newBtn.onclick = () => App.surrenderRaid();
+        newBtn.querySelector('span').textContent = i18n.t('leaveDungeon');
+        newBtn.className = "btn btn-danger";
+        newBtn.style.opacity = "1";
+      }
+    }
   },
 
   enterGate(rankId) {
@@ -268,15 +348,42 @@ const App = {
       SoundManager.play('click');
       this.showNotification(i18n.t('attack'), `${i18n.t('damageDealt')}: ${result.damage}`, 'success');
       if (result.victory) {
+        // Updated flow: Wait, show boss defeated, then show modal
+        this.renderDungeons();
         setTimeout(() => {
-          const rewards = Dungeon.claimVictory();
-          SoundManager.play('levelup');
-          this.showNotification(i18n.t('victory'), `${i18n.t('gained')}: ${rewards.xp} XP, ${rewards.gold} Gold`, 'success');
-          History.add('RAID_WIN', `Defeated Boss. Gained ${rewards.gold} G`);
-          this.checkAchievements(); this.renderProfile(); this.renderDungeons();
-        }, 500);
+          App.showVictoryModal();
+        }, 1500);
       } else { this.renderDungeons(); }
     }
+  },
+
+  showVictoryModal() {
+    const raid = Dungeon.activeRaid;
+    if (!raid) return;
+
+    const rank = raid.rank;
+    // Calculate rewards (copied logic from claimVictory to show preview)
+    const xp = Dungeon.bosses[rank].hp * 2;
+    const gold = Dungeon.bosses[rank].hp;
+
+    document.getElementById('victory-boss-name').textContent = raid.boss.name + " DEFEATED";
+    document.getElementById('victory-xp').textContent = xp;
+    document.getElementById('victory-gold').textContent = gold;
+
+    const btn = document.getElementById('victory-claim-btn');
+    btn.onclick = () => {
+      const rewards = Dungeon.claimVictory();
+      SoundManager.play('levelup');
+      App.showNotification(i18n.t('victory'), `${i18n.t('gained')}: ${rewards.xp} XP, ${rewards.gold} Gold`, 'success');
+      History.add('RAID_WIN', `Defeated Boss. Gained ${rewards.gold} G`);
+      App.checkAchievements(); App.renderProfile(); App.renderDungeons();
+
+      document.getElementById('victory-modal').classList.remove('active');
+      SoundManager.play('click');
+    };
+
+    document.getElementById('victory-modal').classList.add('active');
+    SoundManager.play('complete'); // or victory sound
   },
 
   showRewardDetail(rewardId) {
@@ -310,11 +417,13 @@ const App = {
     const journal = QuestEditor.getJournal();
     this.elements.journalList.innerHTML = '';
     if (journal.length === 0) { this.elements.journalList.innerHTML = '<p class="text-muted">История изменений пуста</p>'; }
-    else { [...journal].reverse().forEach(entry => {
-      const item = document.createElement('div'); item.className = 'journal-entry';
-      item.innerHTML = `<div class="journal-time">${new Date(entry.timestamp).toLocaleString()}</div><div>${entry.details}</div>`;
-      this.elements.journalList.appendChild(item);
-    }); }
+    else {
+      [...journal].reverse().forEach(entry => {
+        const item = document.createElement('div'); item.className = 'journal-entry';
+        item.innerHTML = `<div class="journal-time">${new Date(entry.timestamp).toLocaleString()}</div><div>${entry.details}</div>`;
+        this.elements.journalList.appendChild(item);
+      });
+    }
   },
 
   showEditQuestModal(questId) {
@@ -422,7 +531,7 @@ const App = {
   },
 
   updateLanguage() {
-    const navKeys = ['navProfile', 'navQuests', 'navRewards', 'navHistory'];
+    const navKeys = ['navProfile', 'navQuests', 'navRewards', 'navShop', 'navGates', 'navHistory'];
     document.querySelectorAll('.nav-item').forEach((item, index) => {
       const label = item.querySelector('.nav-label');
       if (label && navKeys[index]) label.textContent = i18n.t(navKeys[index]);
@@ -431,10 +540,35 @@ const App = {
     document.querySelector('.quest-subtitle').innerHTML = i18n.t('questSubtitle');
     document.querySelector('.quest-goals-title').textContent = i18n.t('questGoals');
     document.querySelector('.warning-banner').innerHTML = i18n.t('questWarning');
+    document.querySelector('.warning-banner').innerHTML = i18n.t('questWarning');
+
+    // Update IDs for titles
+    if (document.getElementById('title-shop')) document.getElementById('title-shop').textContent = i18n.t('shopTitle');
+    if (document.getElementById('title-dungeons')) document.getElementById('title-dungeons').textContent = i18n.t('dungeonsTitle');
+    if (document.getElementById('title-history')) document.getElementById('title-history').textContent = i18n.t('historyTitle');
+    if (document.getElementById('title-achievements')) document.getElementById('title-achievements').textContent = i18n.t('historyAchievements');
+
     this.renderProfile(); this.renderShop(); this.renderDungeons(); this.renderHistory(); this.renderAchievements();
   },
 
   buyItem(itemId) {
+    if (itemId === 'shadow_extract') {
+      const result = Shop.buyItem(itemId);
+      if (result.success) {
+        const extract = Shadows.extract();
+        SoundManager.play('rankup'); // Placeholder sound
+        this.showNotification('SHADOW EXTRACTION', `ARISE! You obtained: ${extract.template.name}`, 'success');
+        // TODO: Show a proper modal with animation
+        this.renderProfile();
+        History.add('SHADOW', `Extracted: ${extract.template.name}`);
+        this.checkAchievements();
+      } else {
+        SoundManager.play('undo');
+        this.showNotification('SHOP', result.message, 'error');
+      }
+      return;
+    }
+
     const result = Shop.buyItem(itemId);
     if (result.success) {
       SoundManager.play('complete'); this.showNotification('SHOP', result.message, 'success');
@@ -459,7 +593,434 @@ const App = {
     alert.innerHTML = `<div class="system-alert-header"><span class="system-alert-title">SYSTEM</span><span class="system-alert-time">${new Date().toLocaleTimeString()}</span></div><div class="system-alert-body"><strong>${title}</strong><br>${message}</div>`;
     container.appendChild(alert);
     setTimeout(() => { alert.style.animation = 'slideOut 0.3s ease-in forwards'; setTimeout(() => alert.remove(), 300); }, 3000);
+  },
+
+  // === AUTH METHODS ===
+  showAuthModal() {
+    document.getElementById('auth-modal').classList.add('active');
+  },
+
+  hideAuthModal() {
+    document.getElementById('auth-modal').classList.remove('active');
+  },
+
+  showLoginForm() {
+    document.getElementById('auth-form-login').style.display = 'block';
+    document.getElementById('auth-form-register').style.display = 'none';
+    document.getElementById('auth-form-forgot').style.display = 'none';
+    document.getElementById('auth-modal-title').textContent = 'ВХОД В СИСТЕМУ';
+  },
+
+  showRegisterForm() {
+    document.getElementById('auth-form-login').style.display = 'none';
+    document.getElementById('auth-form-register').style.display = 'block';
+    document.getElementById('auth-form-forgot').style.display = 'none';
+    document.getElementById('auth-modal-title').textContent = 'РЕГИСТРАЦИЯ';
+  },
+
+  showForgotPasswordForm() {
+    document.getElementById('auth-form-login').style.display = 'none';
+    document.getElementById('auth-form-register').style.display = 'none';
+    document.getElementById('auth-form-forgot').style.display = 'block';
+    document.getElementById('auth-modal-title').textContent = 'ВОССТАНОВЛЕНИЕ';
+    document.getElementById('auth-forgot-error').style.display = 'none';
+    document.getElementById('auth-forgot-success').style.display = 'none';
+  },
+
+  async handleForgotPassword() {
+    const email = document.getElementById('auth-forgot-email').value;
+    const errorEl = document.getElementById('auth-forgot-error');
+    const successEl = document.getElementById('auth-forgot-success');
+
+    errorEl.style.display = 'none';
+    successEl.style.display = 'none';
+
+    if (!email) {
+      errorEl.textContent = 'Введите email';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    const result = await SupabaseClient.resetPassword(email);
+
+    if (result.success) {
+      successEl.textContent = 'Письмо отправлено! Проверьте папку СПАМ.';
+      successEl.style.display = 'block';
+      SoundManager.play('complete');
+    } else {
+      errorEl.textContent = result.error || 'Ошибка отправки';
+      errorEl.style.display = 'block';
+    }
+  },
+
+
+  async handleLogin() {
+    const email = document.getElementById('auth-email').value;
+    const password = document.getElementById('auth-password').value;
+    const errorEl = document.getElementById('auth-error');
+
+    if (!email || !password) {
+      errorEl.textContent = 'Заполните все поля';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    const result = await SupabaseClient.signIn(email, password);
+
+    if (result.success) {
+      localStorage.setItem('arise_user_password', password);
+      this.hideAuthModal();
+      this.renderAll();
+      this.showNotification('ARISE!', 'Добро пожаловать обратно, Охотник!', 'success');
+      SoundManager.play('levelup');
+    } else {
+      errorEl.textContent = result.error || 'Ошибка входа';
+      errorEl.style.display = 'block';
+    }
+  },
+
+  async handleRegister() {
+    const hunterName = document.getElementById('auth-hunter-name').value || 'HUNTER';
+    const email = document.getElementById('auth-reg-email').value;
+    const password = document.getElementById('auth-reg-password').value;
+    const errorEl = document.getElementById('auth-reg-error');
+
+    if (!email || !password) {
+      errorEl.textContent = 'Заполните все поля';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    if (password.length < 6) {
+      errorEl.textContent = 'Пароль минимум 6 символов';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    const result = await SupabaseClient.signUp(email, password, hunterName);
+
+    if (result.success) {
+      localStorage.setItem('arise_user_password', password);
+      this.hideAuthModal();
+      this.showNotification('ARISE!', 'Охотник зарегистрирован! Проверьте email для подтверждения.', 'success');
+      SoundManager.play('rankup');
+
+    } else {
+      errorEl.textContent = result.error || 'Ошибка регистрации';
+      errorEl.style.display = 'block';
+    }
+  },
+
+  async handleLogout() {
+    await SupabaseClient.signOut();
+    this.showAuthModal();
+    this.showNotification('SYSTEM', 'Вы вышли из системы', 'info');
+  },
+
+  async syncToCloud() {
+    if (SupabaseClient.isLoggedIn()) {
+      await SupabaseClient.saveProfile();
+    }
+  },
+
+  // === ACCOUNT MODAL METHODS ===
+  passwordVisible: false,
+
+  showAccountModal() {
+    if (!SupabaseClient.isLoggedIn()) {
+      this.showAuthModal();
+      return;
+    }
+    this.renderAccountData();
+    document.getElementById('account-modal').classList.add('active');
+    SoundManager.play('click');
+  },
+
+  closeAccountModal() {
+    document.getElementById('account-modal').classList.remove('active');
+  },
+
+  renderAccountData() {
+    const user = SupabaseClient.user;
+    const profile = SupabaseClient.profile;
+
+    // Email
+    document.getElementById('account-email').textContent = user?.email || '—';
+
+    // Password (from localStorage) - now as input
+    const savedPassword = localStorage.getItem('arise_user_password') || '';
+    const passwordInput = document.getElementById('account-password');
+    passwordInput.value = savedPassword;
+    passwordInput.type = 'password';
+    this.passwordVisible = false;
+    document.getElementById('password-toggle-btn').textContent = '👁️';
+
+    // Nickname
+    document.getElementById('account-nickname').value = Character.data.name || 'HUNTER';
+
+    // Registration date
+    const createdAt = user?.created_at ? new Date(user.created_at) : null;
+    if (createdAt) {
+      document.getElementById('account-created').textContent = createdAt.toLocaleDateString();
+
+      // Play time (days since registration)
+      const daysSinceReg = Math.floor((Date.now() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
+      document.getElementById('account-playtime').textContent = daysSinceReg + ' ' + (i18n.currentLang === 'ru' ? 'дн.' : 'days');
+    } else {
+      document.getElementById('account-created').textContent = '—';
+      document.getElementById('account-playtime').textContent = '—';
+    }
+
+    // Stats
+    document.getElementById('account-total-xp').textContent = Character.data.totalXp || 0;
+    document.getElementById('account-quests').textContent = Quests.getCompletedCount ? Quests.getCompletedCount() : (profile?.quests_completed || 0);
+    document.getElementById('account-best-streak').textContent = Character.data.bestStreak || 0;
+  },
+
+  togglePasswordVisibility() {
+    this.passwordVisible = !this.passwordVisible;
+    const passwordInput = document.getElementById('account-password');
+    passwordInput.type = this.passwordVisible ? 'text' : 'password';
+
+    const btn = document.getElementById('password-toggle-btn');
+    btn.textContent = this.passwordVisible ? '🙈' : '👁️';
+    SoundManager.play('click');
+  },
+
+  savePassword() {
+    const password = document.getElementById('account-password').value;
+    if (password) {
+      localStorage.setItem('arise_user_password', password);
+      this.showNotification('SYSTEM', i18n.currentLang === 'ru' ? 'Пароль сохранён!' : 'Password saved!', 'success');
+      SoundManager.play('complete');
+    }
+  },
+
+  // === STREAK MODAL ===
+  showStreakModal() {
+    const status = Character.checkDailyLogin();
+    const streakDisplay = status.canClaim ? status.streak : Character.data.streak;
+
+    document.getElementById('modal-streak-count').textContent = streakDisplay;
+
+    const grid = document.getElementById('streak-grid');
+    grid.innerHTML = '';
+
+    const rewards = [100, 200, 300, 400, 500, 600, 1000];
+    const daysStr = i18n.currentLang === 'ru' ? 'День' : 'Day';
+
+    for (let i = 0; i < 7; i++) {
+      const dayNum = i + 1;
+      const reward = rewards[i];
+      const el = document.createElement('div');
+      el.className = 'streak-item';
+
+      let stateClass = '';
+      if (streakDisplay > dayNum) {
+        stateClass = 'claimed';
+      } else if (streakDisplay === dayNum) {
+        if (status.canClaim) {
+          stateClass = 'active';
+        } else {
+          stateClass = 'active claimed';
+        }
+      } else if (dayNum === 7 && streakDisplay >= 7) {
+        if (status.canClaim) stateClass = 'active';
+        else stateClass = 'active claimed';
+      }
+
+      if (stateClass) el.className += ` ${stateClass}`;
+
+      el.innerHTML = `
+            <div class="streak-day">${daysStr} ${dayNum}</div>
+            <div class="streak-icon-small">💰</div>
+            <div class="streak-reward">${reward}</div>
+        `;
+      grid.appendChild(el);
+    }
+
+    // Claim Button
+    let btnContainer = document.getElementById('streak-claim-container');
+    if (!btnContainer) {
+      btnContainer = document.createElement('div');
+      btnContainer.id = 'streak-claim-container';
+      btnContainer.style.marginTop = '20px';
+      btnContainer.style.textAlign = 'center';
+      grid.parentNode.appendChild(btnContainer);
+    }
+
+    if (status.canClaim) {
+      btnContainer.innerHTML = `
+            <button class="btn btn-primary" onclick="App.claimReward()" style="padding: 15px 40px; font-size: 1.2rem; width: 100%; box-shadow: 0 0 15px var(--color-accent-cyan);">
+                ${i18n.currentLang === 'ru' ? 'ЗАБРАТЬ НАГРАДУ' : 'CLAIM REWARD'}
+            </button>
+        `;
+    } else {
+      btnContainer.innerHTML = `
+            <div style="color: var(--color-accent-green); font-weight: bold; font-family: var(--font-display); font-size: 1.1rem;">
+                ✓ ${i18n.currentLang === 'ru' ? 'НАГРАДА ПОЛУЧЕНА' : 'REWARD CLAIMED'}
+            </div>
+            <div style="color: var(--color-text-secondary); font-size: 0.9rem; margin-top: 5px;">
+                ${i18n.currentLang === 'ru' ? 'Приходите завтра!' : 'Come back tomorrow!'}
+            </div>
+        `;
+    }
+
+    document.getElementById('streak-modal').classList.add('active');
+    SoundManager.play('click');
+  },
+
+  closeStreakModal() {
+    document.getElementById('streak-modal').classList.remove('active');
+    SoundManager.play('click');
+  },
+
+  claimReward() {
+    const result = Character.claimDailyReward();
+    if (result) {
+      SoundManager.play('levelup');
+      this.showStreakModal();
+      this.renderProfile();
+
+      const msg = i18n.currentLang === 'ru'
+        ? `Получено +${result.reward} золота!`
+        : `Received +${result.reward} Gold!`;
+
+      this.showNotification('SYSTEM', msg, 'success');
+    }
+  },
+
+  async saveNickname() {
+    const newName = document.getElementById('account-nickname').value.trim() || 'HUNTER';
+    Character.data.name = newName;
+    Character.save();
+
+    if (SupabaseClient.isLoggedIn()) {
+      await SupabaseClient.updateHunterName(newName);
+    }
+
+    this.renderProfile();
+    this.showNotification('SYSTEM', i18n.currentLang === 'ru' ? 'Никнейм сохранён!' : 'Nickname saved!', 'success');
+    SoundManager.play('complete');
+  },
+
+  // === PASSWORD RESET METHODS ===
+  checkPasswordRecovery() {
+    const hash = window.location.hash;
+    if (hash && hash.includes('type=recovery')) {
+      const sb = window.supabase?.createClient ?
+        window.supabase.createClient('https://jjxwjgqduyanrhgttkzx.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpqeHdqZ3FkdXlhbnJoZ3R0a3p4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwMTg3NzcsImV4cCI6MjA4NDU5NDc3N30.2bUMrkN8cGdpVgW-q1OVEk9bSDBCQOjGXZ6Fdw2m3aI') : null;
+
+      if (sb) {
+        sb.auth.onAuthStateChange((event, session) => {
+          if (event === 'PASSWORD_RECOVERY') {
+            this.showNewPasswordModal();
+          }
+        });
+      }
+
+      setTimeout(() => {
+        this.showNewPasswordModal();
+      }, 1000);
+    }
+  },
+
+  showNewPasswordModal() {
+    document.getElementById('new-password-modal').classList.add('active');
+    document.getElementById('new-password-error').style.display = 'none';
+    document.getElementById('new-password-input').value = '';
+    document.getElementById('new-password-confirm').value = '';
+  },
+
+  closeNewPasswordModal() {
+    document.getElementById('new-password-modal').classList.remove('active');
+    window.history.replaceState(null, '', window.location.pathname);
+  },
+
+  async handleSetNewPassword() {
+    const password = document.getElementById('new-password-input').value;
+    const confirm = document.getElementById('new-password-confirm').value;
+    const errorEl = document.getElementById('new-password-error');
+
+    errorEl.style.display = 'none';
+
+    if (!password || !confirm) {
+      errorEl.textContent = 'Заполните оба поля';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    if (password.length < 6) {
+      errorEl.textContent = 'Пароль минимум 6 символов';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    if (password !== confirm) {
+      errorEl.textContent = 'Пароли не совпадают';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    const result = await SupabaseClient.updatePassword(password);
+
+    if (result.success) {
+      localStorage.setItem('arise_user_password', password);
+      this.closeNewPasswordModal();
+      this.showNotification('SYSTEM', 'Пароль успешно изменён!', 'success');
+      SoundManager.play('levelup');
+    } else {
+      errorEl.textContent = result.error || 'Ошибка сохранения';
+      errorEl.style.display = 'block';
+    }
   }
 };
 
-document.addEventListener('DOMContentLoaded', () => { try { App.init(); } catch (err) { console.error('CRITICAL:', err); App.cacheElements(); App.setupEventListeners(); } });
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    Storage.init(); i18n.init(); Character.init(); Quests.init(); Shadows.init();
+    Rewards.init(); Shop.init(); Dungeon.init(); History.init(); Achievements.init();
+
+    // Initialize Supabase and check auth
+    let isLoggedIn = false;
+    if (window.SupabaseClient) {
+      window.addEventListener('arise-password-recovery', () => {
+        console.log('Password recovery event received!');
+        App.showNewPasswordModal();
+      });
+
+      window.SupabaseClient.init();
+      isLoggedIn = await window.SupabaseClient.checkSession();
+    } else {
+      console.warn('SupabaseClient not available, running in offline mode');
+    }
+
+    App.cacheElements();
+    App.setupEventListeners();
+    App.renderAll();
+    App.registerServiceWorker();
+
+    if (window.SupabaseClient) {
+      App.checkPasswordRecovery();
+    }
+
+    if (!isLoggedIn && window.SupabaseClient) {
+      App.showAuthModal();
+    } else if (isLoggedIn) {
+      App.showNotification('ARISE!', 'Добро пожаловать, Охотник!', 'success');
+
+      // Auto-check daily login after brief delay ensuring load
+      setTimeout(() => {
+        const dailyStatus = Character.checkDailyLogin();
+        // If we can claim, show modal
+        if (dailyStatus.canClaim) {
+          App.showStreakModal();
+        }
+      }, 1000);
+    }
+  } catch (err) {
+    console.error('CRITICAL:', err);
+    App.cacheElements();
+    App.setupEventListeners();
+  }
+});

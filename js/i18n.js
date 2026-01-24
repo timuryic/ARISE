@@ -7,7 +7,7 @@ const i18n = {
 
     strings: {
         ru: {
-            navProfile: 'Профиль', navQuests: 'Квесты', navRewards: 'Награды', navHistory: 'История',
+            navProfile: 'Профиль', navQuests: 'Квесты', navRewards: 'Награды', navShop: 'Магазин', navGates: 'Врата', navHistory: 'История',
             questTitle: 'КВЕСТЫ', questSubtitle: '[Ежедневный квест: <strong>Режим тренировки начался.</strong>]',
             questGoals: 'ЦЕЛИ', questWarning: '<strong>ВНИМАНИЕ:</strong> Невыполнение квеста приведёт к <strong>штрафу</strong>.',
             profileStats: 'ХАРАКТЕРИСТИКИ', profileStreak: 'дней подряд', profileNextRank: 'До', profileLevels: 'уровней',
@@ -68,17 +68,22 @@ const i18n = {
             raidQuests: 'ЗАДАЧИ РЕЙДА', leaveDungeon: 'Покинуть подземелье', surrenderConfirm: 'Вы уверены? Ключ будет потерян.',
             raidErrors: { active: 'Рейд уже идет', noKeys: 'Нет ключей' },
             exercises: { pushups: 'Отжимания', squats: 'Приседания', run: 'Бег', km: 'км' },
-            bosses: { e: 'ГОБЛИН-РАЗВЕДЧИК', d: 'СТАЛЬНОЙ КЛЫК', c: 'ГИГАНТСКИЙ ПАУК', b: 'ЦЕРБЕР', a: 'КРОВАВЫЙ РЫЦАРЬ', s: 'БЕРУ' },
+            bosses: { e: 'ГОБЛИН-РАЗВЕДЧИК', d: 'HIGH BERTORK', c: 'STARIY WIZARD', b: 'ЦЕРБЕР', a: 'КРОВАВЫЙ РЫЦАРЬ', s: 'БЕРУ' },
             stats: {
                 str: { short: 'СИЛ', full: 'Сила', tooltip: 'Сила — силовые упражнения' },
                 vit: { short: 'ВЫН', full: 'Выносливость', tooltip: 'Выносливость — кардио и бег' },
                 agi: { short: 'ЛОВ', full: 'Ловкость', tooltip: 'Ловкость — активность' },
                 int: { short: 'ИНТ', full: 'Интеллект', tooltip: 'Интеллект — чтение, медитация' },
                 sen: { short: 'ДИС', full: 'Дисциплина', tooltip: 'Дисциплина — режим дня' }
-            }
+            },
+            ' мин': ' мин', ' км': ' км', ' шагов': ' шагов', ' стаканов': ' стаканов', 'км': 'км',
+            // Account modal
+            accountTitle: 'АККАУНТ', accountEmail: 'Email', accountPassword: 'Пароль', accountNickname: 'Никнейм',
+            accountCreated: 'Дата регистрации', accountPlaytime: 'Время в игре', accountTotalXp: 'Всего XP',
+            accountQuests: 'Квестов', accountBestStreak: 'Лучшая серия', accountLogout: 'ВЫЙТИ', accountDays: 'дн.'
         },
         en: {
-            navProfile: 'Profile', navQuests: 'Quests', navRewards: 'Rewards', navHistory: 'History',
+            navProfile: 'Profile', navQuests: 'Quests', navRewards: 'Rewards', navShop: 'Shop', navGates: 'Gates', navHistory: 'History',
             questTitle: 'QUESTS', questSubtitle: '[Daily Quest: <strong>Training mode activated.</strong>]',
             questGoals: 'GOALS', questWarning: '<strong>WARNING:</strong> Failure to complete quest will result in <strong>penalty</strong>.',
             profileStats: 'STATS', profileStreak: 'day streak', profileNextRank: 'Until', profileLevels: 'levels',
@@ -139,14 +144,19 @@ const i18n = {
             raidQuests: 'RAID QUESTS', leaveDungeon: 'Leave Dungeon', surrenderConfirm: 'Are you sure? Key will be lost.',
             raidErrors: { active: 'Raid already active', noKeys: 'No keys available' },
             exercises: { pushups: 'Pushups', squats: 'Squats', run: 'Run', km: 'km' },
-            bosses: { e: 'GOBLIN SCOUT', d: 'STEEL FANG', c: 'GIANT SPIDER', b: 'CERBERUS', a: 'BLOOD KNIGHT', s: 'BERU' },
+            bosses: { e: 'GOBLIN SCOUT', d: 'HIGH BERTORK', c: 'STARIY WIZARD', b: 'CERBERUS', a: 'BLOOD KNIGHT', s: 'BERU' },
             stats: {
                 str: { short: 'STR', full: 'Strength', tooltip: 'Strength — strength exercises' },
                 vit: { short: 'VIT', full: 'Vitality', tooltip: 'Vitality — cardio and running' },
                 agi: { short: 'AGI', full: 'Agility', tooltip: 'Agility — daily activity' },
                 int: { short: 'INT', full: 'Intelligence', tooltip: 'Intelligence — reading, meditation' },
                 sen: { short: 'SEN', full: 'Discipline', tooltip: 'Discipline — daily routine' }
-            }
+            },
+            ' мин': ' min', ' км': ' km', ' шагов': ' steps', ' стаканов': ' cups', 'км': 'km',
+            // Account modal
+            accountTitle: 'ACCOUNT', accountEmail: 'Email', accountPassword: 'Password', accountNickname: 'Nickname',
+            accountCreated: 'Registered', accountPlaytime: 'Play time', accountTotalXp: 'Total XP',
+            accountQuests: 'Quests', accountBestStreak: 'Best streak', accountLogout: 'LOGOUT', accountDays: 'days'
         }
     },
 

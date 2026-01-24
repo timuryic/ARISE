@@ -5,11 +5,11 @@
 const Shop = {
     items: [
         { id: 'elixir_hp', nameKey: 'elixir_hp', price: 100, icon: '🧪', available: true },
-        { id: 'dungeon_key', nameKey: 'dungeon_key', price: 500, icon: '🔑', available: true },
-        { id: 'shadow_extract', nameKey: 'shadow_extract', price: 5000, icon: '🌑', available: false }
+        { id: 'dungeon_key', nameKey: 'dungeon_key', price: 0, icon: '🔑', available: true },
+        { id: 'shadow_extract', nameKey: 'shadow_extract', price: 1000, icon: '🌑', available: true }
     ],
 
-    init() {},
+    init() { },
 
     getItems() {
         return this.items;

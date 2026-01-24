@@ -30,39 +30,68 @@ const Character = {
         const today = new Date().toDateString();
         const lastLogin = this.data.lastLoginDate;
 
+        // Already claimed today?
         if (lastLogin === today) {
-            return null;
+            return {
+                claimed: true,
+                streak: this.data.streak,
+                reward: 0,
+                canClaim: false
+            };
         }
+
+        // Calculate potential streak but DO NOT save yet
+        let potentialStreak = this.data.streak;
 
         if (lastLogin) {
             const yesterday = new Date();
             yesterday.setDate(yesterday.getDate() - 1);
             if (lastLogin === yesterday.toDateString()) {
-                this.data.streak++;
+                potentialStreak++;
             } else {
-                this.data.streak = 1;
+                potentialStreak = 1;
             }
         } else {
-            this.data.streak = 1;
+            potentialStreak = 1;
         }
 
+        // Calculate reward
+        let reward = 0;
+        const day = potentialStreak;
+
+        if (day >= 7) reward = 1000;
+        else if (day === 6) reward = 600;
+        else if (day === 5) reward = 500;
+        else if (day === 4) reward = 400;
+        else if (day === 3) reward = 300;
+        else if (day === 2) reward = 200;
+        else reward = 100;
+
+        return {
+            claimed: false,
+            canClaim: true,
+            streak: potentialStreak,
+            reward: reward,
+            isBest: potentialStreak > this.data.bestStreak
+        };
+    },
+
+    claimDailyReward() {
+        const status = this.checkDailyLogin();
+        if (!status.canClaim) return false;
+
+        const today = new Date().toDateString();
+
+        this.data.streak = status.streak;
         if (this.data.streak > this.data.bestStreak) {
             this.data.bestStreak = this.data.streak;
         }
 
-        const baseReward = 100;
-        const streakBonus = Math.min(this.data.streak * 10, 500);
-        const totalGold = baseReward + streakBonus;
-
-        this.addGold(totalGold);
+        this.addGold(status.reward);
         this.data.lastLoginDate = today;
         this.save();
 
-        return {
-            gold: totalGold,
-            streak: this.data.streak,
-            isBest: this.data.streak === this.data.bestStreak
-        };
+        return status;
     },
 
     addGold(amount) {
@@ -115,6 +144,9 @@ const Character = {
             ...this.defaults,
             createdAt: new Date().toISOString()
         };
+        // Grant requested gold
+        this.addGold(500);
+
         if ((this.data.gold || 0) < 500) {
             this.data.gold = 500;
         }
@@ -124,6 +156,10 @@ const Character = {
 
     save() {
         Storage.save(Storage.KEYS.CHARACTER, this.data);
+        // Sync to cloud if logged in
+        if (window.SupabaseClient && window.SupabaseClient.isLoggedIn()) {
+            window.SupabaseClient.saveProfile();
+        }
     },
 
     getXpForLevel(level) {
