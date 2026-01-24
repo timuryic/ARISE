@@ -3,7 +3,6 @@
   "outputDirectory": ".",
   "cleanUrls": true,
   "trailingSlash": false,
-  "includeFiles": ["config.js"],
   "headers": [
     {
       "source": "/(.*)",
