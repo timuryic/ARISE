@@ -65,7 +65,21 @@ const Dungeon = {
                 "Пошло добро.."
             ]
         },
-        'a': { nameKey: 'a', hp: 2500, color: '#ffd700', image: '⚔️' },
+        'a': {
+            nameKey: 'a',
+            hp: 2500,
+            color: '#ffd700',
+            assets: {
+                normal: 'assets/zombie_normal.png',
+                damaged: 'assets/zombie_damaged.png',
+                critical: 'assets/zombie_critical.png',
+                defeated: 'assets/zombie_defeated.png'
+            },
+            image: '<img src="assets/zombie_normal.png" alt="Infected Manager" style="max-height: 200px;">',
+            quotes: [
+                "Сыграем на щелбан?"
+            ]
+        },
         's': { nameKey: 's', hp: 10000, color: '#ff4757', image: '🐜' }
     },
 
