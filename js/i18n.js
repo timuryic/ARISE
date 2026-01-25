@@ -68,7 +68,7 @@ const i18n = {
             raidQuests: 'ЗАДАЧИ РЕЙДА', leaveDungeon: 'Покинуть подземелье', surrenderConfirm: 'Вы уверены? Ключ будет потерян.',
             raidErrors: { active: 'Рейд уже идет', noKeys: 'Нет ключей' },
             exercises: { pushups: 'Отжимания', squats: 'Приседания', run: 'Бег', km: 'км' },
-            bosses: { e: 'ГОБЛИН-РАЗВЕДЧИК', d: 'HIGH BERTORK', c: 'STARIY WIZARD', b: 'ЦЕРБЕР', a: 'КРОВАВЫЙ РЫЦАРЬ', s: 'БЕРУ' },
+            bosses: { e: 'ГОБЛИН-РАЗВЕДЧИК', d: 'HIGH BERTORK', c: 'STARIY WIZARD', b: 'VITAL THE BANDIT', a: 'КРОВАВЫЙ РЫЦАРЬ', s: 'БЕРУ' },
             stats: {
                 str: { short: 'СИЛ', full: 'Сила', tooltip: 'Сила — силовые упражнения' },
                 vit: { short: 'ВЫН', full: 'Выносливость', tooltip: 'Выносливость — кардио и бег' },
@@ -144,7 +144,7 @@ const i18n = {
             raidQuests: 'RAID QUESTS', leaveDungeon: 'Leave Dungeon', surrenderConfirm: 'Are you sure? Key will be lost.',
             raidErrors: { active: 'Raid already active', noKeys: 'No keys available' },
             exercises: { pushups: 'Pushups', squats: 'Squats', run: 'Run', km: 'km' },
-            bosses: { e: 'GOBLIN SCOUT', d: 'HIGH BERTORK', c: 'STARIY WIZARD', b: 'CERBERUS', a: 'BLOOD KNIGHT', s: 'BERU' },
+            bosses: { e: 'GOBLIN SCOUT', d: 'HIGH BERTORK', c: 'STARIY WIZARD', b: 'VITAL THE BANDIT', a: 'BLOOD KNIGHT', s: 'BERU' },
             stats: {
                 str: { short: 'STR', full: 'Strength', tooltip: 'Strength — strength exercises' },
                 vit: { short: 'VIT', full: 'Vitality', tooltip: 'Vitality — cardio and running' },

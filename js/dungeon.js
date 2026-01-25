@@ -50,7 +50,21 @@ const Dungeon = {
                 "Узри силу моей МЕТЕОРЫ!"
             ]
         },
-        'b': { nameKey: 'b', hp: 1000, color: '#00ff88', image: '🐕' },
+        'b': {
+            nameKey: 'b',
+            hp: 1000,
+            color: '#00ff88',
+            assets: {
+                normal: 'assets/vital_normal.png',
+                damaged: 'assets/vital_damaged.png',
+                critical: 'assets/vital_critical.png',
+                defeated: 'assets/vital_defeated.png'
+            },
+            image: '<img src="assets/vital_normal.png" alt="Vital the Bandit" style="max-height: 200px;">',
+            quotes: [
+                "Пошло добро.."
+            ]
+        },
         'a': { nameKey: 'a', hp: 2500, color: '#ffd700', image: '⚔️' },
         's': { nameKey: 's', hp: 10000, color: '#ff4757', image: '🐜' }
     },
