@@ -18,7 +18,7 @@ const Dungeon = {
                 defeated: 'assets/goblin_defeated.png'
             },
             // Fallback for others currently
-            image: '<img src="assets/goblin.png" alt="Goblin" style="max-height: 200px;">'
+            image: '<img src="assets/goblin.png" alt="Goblin" style="max-height: 45vh; max-width: 100%; object-fit: contain;">'
         },
         'd': {
             nameKey: 'd',
@@ -30,7 +30,7 @@ const Dungeon = {
                 critical: 'assets/bertork_critical.png',
                 defeated: 'assets/bertork_defeated.png'
             },
-            image: '<img src="assets/bertork_normal.png" alt="High Bertork" style="max-height: 200px;">',
+            image: '<img src="assets/bertork_normal.png" alt="High Bertork" style="max-height: 45vh; max-width: 100%; object-fit: contain;">',
             quotes: [
                 "Я заберу весь твой снюс..."
             ]
@@ -45,7 +45,7 @@ const Dungeon = {
                 critical: 'assets/wizard_critical.png',
                 defeated: 'assets/wizard_defeated.png'
             },
-            image: '<img src="assets/wizard_normal.png" alt="Stariy Wizard" style="max-height: 200px;">',
+            image: '<img src="assets/wizard_normal.png" alt="Stariy Wizard" style="max-height: 45vh; max-width: 100%; object-fit: contain;">',
             quotes: [
                 "Узри силу моей МЕТЕОРЫ!"
             ]
@@ -60,7 +60,7 @@ const Dungeon = {
                 critical: 'assets/vital_critical.png',
                 defeated: 'assets/vital_defeated.png'
             },
-            image: '<img src="assets/vital_normal.png" alt="Vital the Bandit" style="max-height: 200px;">',
+            image: '<img src="assets/vital_normal.png" alt="Vital the Bandit" style="max-height: 45vh; max-width: 100%; object-fit: contain;">',
             quotes: [
                 "Пошло добро.."
             ]
@@ -75,7 +75,7 @@ const Dungeon = {
                 critical: 'assets/zombie_critical.png',
                 defeated: 'assets/zombie_defeated.png'
             },
-            image: '<img src="assets/zombie_normal.png" alt="Infected Manager" style="max-height: 200px;">',
+            image: '<img src="assets/zombie_normal.png" alt="Infected Manager" style="max-height: 45vh; max-width: 100%; object-fit: contain;">',
             quotes: [
                 "Сыграем на щелбан?"
             ]
@@ -90,7 +90,7 @@ const Dungeon = {
                 critical: 'assets/vlad_critical.png',
                 defeated: 'assets/vlad_defeated.png'
             },
-            image: '<img src="assets/vlad_normal.png" alt="Vlad the Narcissus Knight" style="max-height: 200px;">',
+            image: '<img src="assets/vlad_normal.png" alt="Vlad the Narcissus Knight" style="max-height: 45vh; max-width: 100%; object-fit: contain;">',
             quotes: [
                 "Тебе точно есть 16?"
             ]
@@ -214,11 +214,11 @@ const Dungeon = {
 
         const pct = (currentHp / maxHp) * 100;
 
-        if (currentHp <= 0) return `<img src="${boss.assets.defeated}" alt="${boss.nameKey}" class="boss-dead" style="max-height: 200px;">`;
-        if (pct <= 50) return `<img src="${boss.assets.critical}" alt="${boss.nameKey}" class="boss-critical" style="max-height: 200px;">`;
-        if (pct <= 70) return `<img src="${boss.assets.damaged}" alt="${boss.nameKey}" style="max-height: 200px;">`;
+        if (currentHp <= 0) return `<img src="${boss.assets.defeated}" alt="${boss.nameKey}" class="boss-dead" style="max-height: 45vh; max-width: 100%; object-fit: contain;">`;
+        if (pct <= 50) return `<img src="${boss.assets.critical}" alt="${boss.nameKey}" class="boss-critical" style="max-height: 45vh; max-width: 100%; object-fit: contain;">`;
+        if (pct <= 70) return `<img src="${boss.assets.damaged}" alt="${boss.nameKey}" style="max-height: 45vh; max-width: 100%; object-fit: contain;">`;
 
-        return `<img src="${boss.assets.normal}" alt="${boss.nameKey}" style="max-height: 200px;">`;
+        return `<img src="${boss.assets.normal}" alt="${boss.nameKey}" style="max-height: 45vh; max-width: 100%; object-fit: contain;">`;
     }
 };
 
