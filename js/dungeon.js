@@ -80,7 +80,21 @@ const Dungeon = {
                 "Сыграем на щелбан?"
             ]
         },
-        's': { nameKey: 's', hp: 10000, color: '#ff4757', image: '🐜' }
+        's': {
+            nameKey: 's',
+            hp: 10000,
+            color: '#ff4757',
+            assets: {
+                normal: 'assets/vlad_normal.png',
+                damaged: 'assets/vlad_damaged.png',
+                critical: 'assets/vlad_critical.png',
+                defeated: 'assets/vlad_defeated.png'
+            },
+            image: '<img src="assets/vlad_normal.png" alt="Vlad the Narcissus Knight" style="max-height: 200px;">',
+            quotes: [
+                "Тебе точно есть 16?"
+            ]
+        }
     },
 
     init() {

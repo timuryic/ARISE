@@ -3,7 +3,7 @@
  * Handles offline caching and PWA functionality
  */
 
-const CACHE_NAME = 'arise-v5';
+const CACHE_NAME = 'arise-v6';
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
