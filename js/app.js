@@ -549,6 +549,53 @@ const App = {
     });
   },
 
+  // === HISTORY MODAL ===
+  showHistoryModal() {
+    SoundManager.play('click');
+    const modal = document.getElementById('history-modal');
+    if (!modal) return;
+
+    // Render achievements in modal
+    const achGrid = document.getElementById('history-achievements-grid');
+    if (achGrid) {
+      achGrid.innerHTML = '';
+      Achievements.list.forEach(ach => {
+        const isUnlocked = Achievements.isUnlocked(ach.id);
+        const details = i18n.t('achievements')[ach.id] || { title: ach.id, desc: '...' };
+        const el = document.createElement('div');
+        el.className = `achievement-badge ${ach.tier} ${isUnlocked ? '' : 'locked'}`;
+        el.textContent = ach.icon;
+        el.setAttribute('data-title', `${details.title}: ${details.desc}`);
+        achGrid.appendChild(el);
+      });
+    }
+
+    // Render history logs in modal
+    const list = document.getElementById('history-modal-list');
+    if (list) {
+      list.innerHTML = '';
+      const logs = History.getLogs();
+      if (logs.length === 0) {
+        list.innerHTML = '<div class="text-center text-muted">История пуста</div>';
+      } else {
+        logs.slice(0, 20).forEach(log => {
+          const item = document.createElement('div');
+          item.className = `history-item ${log.type}`;
+          const date = new Date(log.timestamp);
+          item.innerHTML = `<div class="history-details">${log.details}</div><div class="history-time">${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>`;
+          list.appendChild(item);
+        });
+      }
+    }
+
+    modal.classList.add('active');
+  },
+
+  closeHistoryModal() {
+    const modal = document.getElementById('history-modal');
+    if (modal) modal.classList.remove('active');
+  },
+
   closeModal() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); },
   closeLevelUpModal() { if (this.elements.levelupModal) this.elements.levelupModal.classList.remove('active'); },
   closeRankUpModal() { if (this.elements.rankupModal) this.elements.rankupModal.classList.remove('active'); },
@@ -594,7 +641,7 @@ const App = {
   },
 
   updateLanguage() {
-    const navKeys = ['navProfile', 'navQuests', 'navRewards', 'navShop', 'navGates', 'navHistory'];
+    const navKeys = ['navProfile', 'navQuests', 'navRewards', 'navShop', 'navGates'];
     document.querySelectorAll('.nav-item').forEach((item, index) => {
       const label = item.querySelector('.nav-label');
       if (label && navKeys[index]) label.textContent = i18n.t(navKeys[index]);

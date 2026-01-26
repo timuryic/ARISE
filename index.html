@@ -24,7 +24,7 @@
     rel="stylesheet">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="css/style.css?v=10">
+  <link rel="stylesheet" href="css/style.css?v=11">
   <link rel="stylesheet" href="css/animations.css">
 </head>
 
@@ -34,6 +34,7 @@
     <header class="app-header">
       <div class="header-left">
         <button class="sound-btn" id="sound-toggle" onclick="App.toggleSound()">🔊</button>
+        <button class="history-btn" id="history-toggle" onclick="App.showHistoryModal()" title="История">📊</button>
       </div>
 
       <div class="app-logo">
@@ -355,10 +356,6 @@
     <button class="nav-item" data-screen="dungeons">
       <span class="nav-icon">⛩️</span>
       <span class="nav-label">Врата</span>
-    </button>
-    <button class="nav-item" data-screen="history">
-      <span class="nav-icon">📊</span>
-      <span class="nav-label">История</span>
     </button>
   </nav>
   </div>
@@ -803,6 +800,33 @@
     </div>
   </div>
 
+  <!-- History Modal -->
+  <div class="modal-overlay" id="history-modal">
+    <div class="modal-content quest-panel" style="width: 90%; max-width: 450px; max-height: 80vh; overflow: hidden;">
+      <div class="quest-panel-header">
+        <div class="quest-panel-icon">📊</div>
+        <div class="quest-panel-title" id="history-modal-title">ИСТОРИЯ</div>
+        <span class="quest-panel-close" onclick="App.closeHistoryModal()">×</span>
+      </div>
+      <div style="padding: 20px; max-height: 60vh; overflow-y: auto;">
+        <!-- Achievements Section -->
+        <div style="margin-bottom: 20px;">
+          <h4 style="color: var(--color-accent-gold); margin-bottom: 10px;">🏅 ДОСТИЖЕНИЯ</h4>
+          <div class="achievements-grid" id="history-achievements-grid">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+        <!-- Activity Log Section -->
+        <div>
+          <h4 style="color: var(--color-accent-cyan); margin-bottom: 10px;">📅 АКТИВНОСТЬ</h4>
+          <div class="history-list" id="history-modal-list">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -828,7 +852,7 @@
   <script src="js/shadows.js"></script>
   <script src="js/particles.js"></script>
   <script src="js/supabase.js"></script>
-  <script src="js/app.js?v=10"></script>
+  <script src="js/app.js?v=11"></script>
 </body>
 
 </html>
