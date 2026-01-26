@@ -200,14 +200,14 @@ const Character = {
         this.data.xp += amount;
         this.data.totalXp += amount;
 
-        const xpNeeded = this.getXpForLevel(this.data.level);
         let leveledUp = false;
         let newLevel = this.data.level;
         let rankChanged = false;
         const oldRank = this.getRank();
 
-        while (this.data.xp >= xpNeeded) {
-            this.data.xp -= xpNeeded;
+        // Recalculate xpNeeded each iteration to handle level-dependent thresholds
+        while (this.data.xp >= this.getXpForLevel(this.data.level)) {
+            this.data.xp -= this.getXpForLevel(this.data.level);
             this.data.level++;
             newLevel = this.data.level;
             leveledUp = true;

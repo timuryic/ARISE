@@ -5,66 +5,88 @@
 const App = {
   elements: {},
 
-  init() {
+  async init() {
     console.log('ARISE System Initializing...');
-    Storage.init(); i18n.init(); Character.init(); Quests.init(); Shadows.init();
-    Rewards.init(); Shop.init(); Dungeon.init(); History.init(); Achievements.init();
 
-    // Check daily reward
-    this.checkAchievements();
-    const dailyStatus = Character.checkDailyLogin();
-    if (dailyStatus.canClaim) {
-      setTimeout(() => {
-        this.showStreakModal();
-      }, 1500);
+    try {
+      // Initialize all modules
+      Storage.init(); i18n.init(); Character.init(); Quests.init(); Shadows.init();
+      Rewards.init(); Shop.init(); Dungeon.init(); History.init(); Achievements.init();
+
+      // Cache DOM elements and setup listeners
+      this.cacheElements();
+      this.setupEventListeners();
+      this.updateLanguage();
+      this.registerServiceWorker();
+      this.updateEffectsStatus();
+      this.renderAll();
+      this.checkAchievements();
+
+      // Initialize Supabase and check auth
+      let isLoggedIn = false;
+      if (window.SupabaseClient) {
+        window.addEventListener('arise-password-recovery', () => {
+          console.log('Password recovery event received!');
+          App.showNewPasswordModal();
+        });
+
+        window.SupabaseClient.init();
+        isLoggedIn = await window.SupabaseClient.checkSession();
+        this.checkPasswordRecovery();
+      } else {
+        console.warn('SupabaseClient not available, running in offline mode');
+      }
+
+      // Handle auth state
+      if (!isLoggedIn && window.SupabaseClient) {
+        this.showAuthModal();
+      } else if (isLoggedIn) {
+        this.showNotification('ARISE!', 'Добро пожаловать, Охотник!', 'success');
+
+        // Check if this is a new user and show welcome modal
+        setTimeout(() => {
+          if (Character.data && Character.data.isNewUser) {
+            this.showBetaWelcomeModal();
+          } else {
+            // Auto-check daily login for returning users
+            const dailyStatus = Character.checkDailyLogin();
+            if (dailyStatus.canClaim) {
+              this.showStreakModal();
+            }
+          }
+        }, 1000);
+      }
+
+      // Initialize sound on first click
+      document.addEventListener('click', () => { SoundManager.init(); SoundManager.play('click'); }, { once: true });
+
+      // Check for penalty notification
+      const penaltyData = Storage.load('arise_daily_penalty');
+      if (penaltyData) {
+        setTimeout(() => {
+          this.showNotification('ОПОВЕЩЕНИЕ', `${i18n.t('penaltyNotification')} (-${penaltyData.amount} XP)`, 'error');
+          Storage.remove('arise_daily_penalty');
+        }, 2000);
+      }
+
+      // Check for elixir save notification
+      const elixirSaved = Storage.load('arise_elixir_saved');
+      if (elixirSaved) {
+        setTimeout(() => {
+          this.showNotification('ЭЛИКСИР', i18n.t('elixirActive'), 'success');
+          Storage.remove('arise_elixir_saved');
+        }, 2500);
+      }
+
+      console.log('ARISE System Online.');
+
+    } catch (err) {
+      console.error('CRITICAL INIT ERROR:', err);
+      // Fallback: at least show the UI
+      this.cacheElements();
+      this.setupEventListeners();
+      this.renderAll();
     }
-
-    this.cacheElements(); this.setupEventListeners(); this.updateLanguage(); this.registerServiceWorker();
-    this.updateEffectsStatus(); // Check on load
-    this.renderAll();
-
-    // Auth listeners
-    if (window.SupabaseClient) {
-      window.addEventListener('arise-password-recovery', () => {
-        console.log('Password recovery event received!');
-        App.showNewPasswordModal();
-      });
-
-      window.SupabaseClient.init();
-      window.SupabaseClient.checkSession().then(isLoggedIn => {
-        if (!isLoggedIn) {
-          App.showAuthModal();
-        } else {
-          App.showNotification('ARISE!', 'Добро пожаловать, Охотник!', 'success');
-        }
-      });
-
-      App.checkPasswordRecovery();
-    } else {
-      console.warn('SupabaseClient not available, running in offline mode');
-    }
-
-    document.addEventListener('click', () => { SoundManager.init(); SoundManager.play('click'); }, { once: true });
-
-    // Check for penalty
-    const penaltyData = Storage.load('arise_daily_penalty');
-    if (penaltyData) {
-      setTimeout(() => {
-        this.showNotification('ОПОВЕЩЕНИЕ', `${i18n.t('penaltyNotification')} (-${penaltyData.amount} XP)`, 'error');
-        Storage.remove('arise_daily_penalty');
-      }, 2000);
-    }
-
-    // Check for elixir save
-    const elixirSaved = Storage.load('arise_elixir_saved');
-    if (elixirSaved) {
-      setTimeout(() => {
-        this.showNotification('ЭЛИКСИР', i18n.t('elixirActive'), 'success');
-        Storage.remove('arise_elixir_saved');
-      }, 2000);
-    }
-
-    console.log('ARISE System Online.');
   },
 
   cacheElements() {
@@ -177,7 +199,6 @@ const App = {
       document.querySelector('.rank-progress').style.display = 'block';
     } else { document.querySelector('.rank-progress').style.display = 'none'; }
     this.elements.avatarGlow.style.background = `radial-gradient(circle, ${rank.glowColor} 0%, transparent 70%)`;
-    this.elements.avatarContainer.style.borderColor = rank.color;
     this.elements.avatarContainer.style.borderColor = rank.color;
     this.elements.avatarImage.src = rank.avatar || 'assets/hunter-avatar.png';
     this.updateEffectsStatus();
@@ -554,7 +575,7 @@ const App = {
   registerServiceWorker() {
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').then(r => console.log('SW registered:', r)).catch(e => console.log('SW failed:', e));
+        navigator.serviceWorker.register('./sw.js').then(r => console.log('SW registered:', r)).catch(e => console.log('SW failed:', e));
       });
     }
   },
@@ -1114,56 +1135,7 @@ const App = {
   }
 };
 
-document.addEventListener('DOMContentLoaded', async () => {
-  try {
-    Storage.init(); i18n.init(); Character.init(); Quests.init(); Shadows.init();
-    Rewards.init(); Shop.init(); Dungeon.init(); History.init(); Achievements.init();
-
-    // Initialize Supabase and check auth
-    let isLoggedIn = false;
-    if (window.SupabaseClient) {
-      window.addEventListener('arise-password-recovery', () => {
-        console.log('Password recovery event received!');
-        App.showNewPasswordModal();
-      });
-
-      window.SupabaseClient.init();
-      isLoggedIn = await window.SupabaseClient.checkSession();
-    } else {
-      console.warn('SupabaseClient not available, running in offline mode');
-    }
-
-    App.cacheElements();
-    App.setupEventListeners();
-    App.renderAll();
-    App.registerServiceWorker();
-
-    if (window.SupabaseClient) {
-      App.checkPasswordRecovery();
-    }
-
-    if (!isLoggedIn && window.SupabaseClient) {
-      App.showAuthModal();
-    } else if (isLoggedIn) {
-      App.showNotification('ARISE!', 'Добро пожаловать, Охотник!', 'success');
-
-      // Check if this is a new user and show welcome modal
-      setTimeout(() => {
-        if (Character.data && Character.data.isNewUser) {
-          App.showBetaWelcomeModal();
-        } else {
-          // Auto-check daily login for returning users
-          const dailyStatus = Character.checkDailyLogin();
-          // If we can claim, show modal
-          if (dailyStatus.canClaim) {
-            App.showStreakModal();
-          }
-        }
-      }, 1000);
-    }
-  } catch (err) {
-    console.error('CRITICAL:', err);
-    App.cacheElements();
-    App.setupEventListeners();
-  }
+// Entry point - call App.init() on DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+  App.init();
 });

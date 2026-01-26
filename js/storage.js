@@ -9,8 +9,10 @@ const Storage = {
     QUESTS: 'arise_quests',
     REWARDS: 'arise_rewards',
     HISTORY: 'arise_history',
+    QUEST_HISTORY: 'arise_quest_history',
     SETTINGS: 'arise_settings',
-    LAST_DATE: 'arise_last_date'
+    LAST_DATE: 'arise_last_date',
+    ACHIEVEMENTS: 'arise_achievements'
   },
 
   /**

@@ -156,6 +156,7 @@ const SupabaseClient = {
             Character.data.statPoints = data.stat_points || 0;
             Character.data.streak = data.streak || 0;
             Character.data.bestStreak = data.best_streak || 0;
+            Character.data.elixirExpiresAt = data.elixir_expires_at || null;
             Character.save();
         }
 
@@ -179,6 +180,7 @@ const SupabaseClient = {
                 stat_points: Character.data.statPoints,
                 streak: Character.data.streak,
                 best_streak: Character.data.bestStreak,
+                elixir_expires_at: Character.data.elixirExpiresAt,
                 shadows: Shadows.collection,
                 updated_at: new Date().toISOString()
             })

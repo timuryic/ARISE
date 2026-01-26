@@ -62,12 +62,8 @@ const Quests = {
                 Storage.save('arise_elixir_saved', { date: Storage.getTodayString() });
             }
 
-            const allCompleted = this.definitions.every(q => oldProgress.quests[q.id]?.completed);
-            if (allCompleted) {
-                Character.incrementStreak();
-            } else {
-                Character.resetStreak();
-            }
+            // Note: Streak is managed by Character.checkDailyLogin() based on daily logins,
+            // not by quest completion. This avoids conflicting streak logic.
         }
         this.todayProgress = this.getEmptyProgress();
         this.save();
@@ -78,7 +74,7 @@ const Quests = {
     },
 
     saveToHistory(progress) {
-        const history = Storage.load(Storage.KEYS.HISTORY) || [];
+        const history = Storage.load(Storage.KEYS.QUEST_HISTORY) || [];
         const totalQuests = this.definitions.length;
         const completedQuests = this.definitions.filter(q => progress.quests[q.id]?.completed).length;
         history.push({
@@ -88,7 +84,7 @@ const Quests = {
             percentage: Math.round((completedQuests / totalQuests) * 100)
         });
         if (history.length > 30) { history.shift(); }
-        Storage.save(Storage.KEYS.HISTORY, history);
+        Storage.save(Storage.KEYS.QUEST_HISTORY, history);
     },
 
     toggleQuest(questId) {
@@ -137,5 +133,11 @@ const Quests = {
 
     isAllCompleted() {
         return this.definitions.every(q => this.todayProgress.quests[q.id]?.completed);
+    },
+
+    // Returns count of completed quests today
+    getCompletedCount() {
+        if (!this.todayProgress || !this.todayProgress.quests) return 0;
+        return this.definitions.filter(q => this.todayProgress.quests[q.id]?.completed).length;
     }
 };
