@@ -408,8 +408,8 @@ const App = {
 
     const rank = raid.rank;
     // Calculate rewards (copied logic from claimVictory to show preview)
-    const xp = Dungeon.bosses[rank].hp * 2;
-    const gold = Dungeon.bosses[rank].hp;
+    const xp = Dungeon.bosses[rank].rewardXp;
+    const gold = Dungeon.bosses[rank].rewardGold;
 
     document.getElementById('victory-boss-name').textContent = raid.boss.name + " DEFEATED";
     document.getElementById('victory-xp').textContent = xp;

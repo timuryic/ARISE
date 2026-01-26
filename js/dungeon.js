@@ -9,6 +9,8 @@ const Dungeon = {
         'e': {
             nameKey: 'e',
             hp: 50,
+            rewardXp: 50,
+            rewardGold: 100,
             color: '#808080',
             // Progressive assets
             assets: {
@@ -23,6 +25,8 @@ const Dungeon = {
         'd': {
             nameKey: 'd',
             hp: 150,
+            rewardXp: 100,
+            rewardGold: 150,
             color: '#d63031', // Red color for demon
             assets: {
                 normal: 'assets/bertork_normal.png',
@@ -38,6 +42,8 @@ const Dungeon = {
         'c': {
             nameKey: 'c',
             hp: 400,
+            rewardXp: 150,
+            rewardGold: 200,
             color: '#00d9ff',
             assets: {
                 normal: 'assets/wizard_normal.png',
@@ -53,6 +59,8 @@ const Dungeon = {
         'b': {
             nameKey: 'b',
             hp: 1000,
+            rewardXp: 200,
+            rewardGold: 250,
             color: '#00ff88',
             assets: {
                 normal: 'assets/vital_normal.png',
@@ -68,6 +76,8 @@ const Dungeon = {
         'a': {
             nameKey: 'a',
             hp: 2500,
+            rewardXp: 250,
+            rewardGold: 300,
             color: '#ffd700',
             assets: {
                 normal: 'assets/zombie_normal.png',
@@ -83,6 +93,8 @@ const Dungeon = {
         's': {
             nameKey: 's',
             hp: 10000,
+            rewardXp: 300,
+            rewardGold: 350,
             color: '#ff4757',
             assets: {
                 normal: 'assets/vlad_normal.png',
@@ -178,8 +190,8 @@ const Dungeon = {
         if (!this.activeRaid || this.activeRaid.currentHp > 0) return;
 
         const rank = this.activeRaid.rank;
-        const xp = this.bosses[rank].hp * 2;
-        const gold = this.bosses[rank].hp;
+        const xp = this.bosses[rank].rewardXp;
+        const gold = this.bosses[rank].rewardGold;
 
         Character.addXp(xp);
         Character.addGold(gold);
