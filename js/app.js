@@ -576,7 +576,7 @@ const App = {
       list.innerHTML = '';
       const logs = History.getLogs();
       if (logs.length === 0) {
-        list.innerHTML = '<div class="text-center text-muted">История пуста</div>';
+        list.innerHTML = `<div class="text-center text-muted">${i18n.t('historyEmpty')}</div>`;
       } else {
         logs.slice(0, 20).forEach(log => {
           const item = document.createElement('div');
@@ -659,7 +659,107 @@ const App = {
     if (document.getElementById('title-history')) document.getElementById('title-history').textContent = i18n.t('historyTitle');
     if (document.getElementById('title-achievements')) document.getElementById('title-achievements').textContent = i18n.t('historyAchievements');
 
+    // Auth Modal
+    this.updateElementText('auth-modal-title', i18n.t('authLogin'));
+    this.updateElementText('auth-login-label', i18n.t('authEmailLabel'));
+    this.updateElementText('auth-password-label', i18n.t('authPasswordLabel'));
+    this.updateElementText('auth-login-btn', i18n.t('authLoginBtn'));
+    this.updateElementText('auth-forgot-link', i18n.t('authForgotLink'));
+    this.updateElementText('auth-no-account', i18n.t('authNoAccount'));
+    this.updateElementText('auth-register-link', i18n.t('authRegisterLink'));
+    this.updateElementText('auth-hunter-label', i18n.t('authHunterName'));
+    this.updateElementText('auth-reg-email-label', i18n.t('authEmailLabel'));
+    this.updateElementText('auth-reg-password-label', i18n.t('authPasswordLabel'));
+    this.updateElementText('auth-register-btn', i18n.t('authRegisterBtn'));
+    this.updateElementText('auth-have-account', i18n.t('authHaveAccount'));
+    this.updateElementText('auth-login-link', i18n.t('authLoginLink'));
+    this.updateElementText('auth-forgot-email-label', i18n.t('authEmailLabel'));
+    this.updateElementText('auth-recover-btn', i18n.t('authRecoverBtn'));
+    this.updateElementText('auth-remember-password', i18n.t('authRememberPassword'));
+    this.updateElementText('auth-login-link-2', i18n.t('authLoginLink'));
+
+    // Account Modal
+    this.updateElementText('account-modal-title', i18n.t('accountTitle'));
+    this.updateElementText('label-account-email', i18n.t('accountEmail'));
+    this.updateElementText('label-account-password', i18n.t('accountPassword'));
+    this.updateElementText('label-account-nickname', i18n.t('accountNickname'));
+    this.updateElementText('label-account-created', i18n.t('accountCreated'));
+    this.updateElementText('label-account-playtime', i18n.t('accountPlaytime'));
+    this.updateElementText('label-account-xp', i18n.t('accountTotalXp'));
+    this.updateElementText('label-account-quests', i18n.t('accountQuests'));
+    this.updateElementText('label-account-streak', i18n.t('accountBestStreak'));
+    this.updateElementText('account-logout-btn', i18n.t('accountLogout'));
+
+    // Edit Quest Modal
+    this.updateElementText('edit-modal-title', i18n.t('editTitle'));
+    this.updateElementText('label-name', i18n.t('editName'));
+    this.updateElementText('label-icon', i18n.t('editIcon'));
+    this.updateElementText('label-target', i18n.t('editTarget'));
+    this.updateElementText('label-unit', i18n.t('editUnit'));
+    this.updateElementText('label-stat', i18n.t('editStat'));
+    this.updateElementText('cancel-edit-btn', i18n.t('editCancel'));
+    this.updateElementText('save-edit-btn', i18n.t('editSave'));
+    this.updateElementText('delete-quest-btn', i18n.t('editDelete'));
+
+    // Edit quest stat options
+    const statSelect = document.getElementById('edit-quest-stat');
+    if (statSelect) {
+      const opts = i18n.t('editStatOptions');
+      statSelect.querySelectorAll('option').forEach(opt => {
+        if (opts[opt.value]) opt.textContent = opts[opt.value];
+      });
+    }
+
+    // Victory Modal
+    this.updateElementText('victory-rewards-title', i18n.t('victoryRewards'));
+    this.updateElementText('victory-claim-btn', i18n.t('victoryClaim'));
+
+    // New Password Modal
+    this.updateElementText('new-password-title', i18n.t('newPasswordTitle'));
+    this.updateElementText('new-password-desc', i18n.t('newPasswordDesc'));
+    this.updateElementText('new-password-label', i18n.t('newPasswordLabel'));
+    this.updateElementText('new-password-confirm-label', i18n.t('newPasswordConfirm'));
+    this.updateElementText('new-password-save-btn', i18n.t('newPasswordSave'));
+
+    // Effects Modal
+    this.updateElementText('effects-modal-title', i18n.t('effectsTitle'));
+    this.updateElementText('no-effects-msg', i18n.t('noActiveEffects'));
+
+    // History Modal
+    this.updateElementText('history-modal-title', i18n.t('historyModalTitle'));
+    this.updateElementText('history-achievements-title', '🏅 ' + i18n.t('historyAchievements'));
+    this.updateElementText('history-activity-title', '📅 ' + i18n.t('historyActivity'));
+
+    // Profile Stats
+    this.updateElementText('profile-stats-title', i18n.t('profileStats'));
+    this.updateElementText('streak-label', i18n.t('profileStreak'));
+
+    // Main Screens Titles & Labels
+    this.updateElementText('quest-screen-title', i18n.t('questTitle'));
+    this.updateElementText('rewards-title', i18n.t('rewardsTitle'));
+    this.updateElementText('label-keys', i18n.t('keys'));
+
+    // Stat labels and tooltips
+    const statsObj = i18n.t('stats');
+    ['str', 'vit', 'agi', 'int', 'sen'].forEach(stat => {
+      this.updateElementText(`stat-label-${stat}`, statsObj[stat]?.short || stat.toUpperCase());
+      const item = document.getElementById(`stat-item-${stat}`);
+      if (item && statsObj[stat]?.tooltip) item.setAttribute('title', statsObj[stat].tooltip);
+    });
+
+    // Settings Screen
+    this.updateElementText('settings-title', i18n.t('settingsTitle'));
+    this.updateElementText('add-quest-btn', i18n.t('settingsAdd'));
+    this.updateElementText('journal-title', i18n.t('settingsJournal'));
+    this.updateElementText('reset-quests-btn', i18n.t('settingsReset'));
+
     this.renderProfile(); this.renderShop(); this.renderDungeons(); this.renderHistory(); this.renderAchievements();
+  },
+
+  // Helper to update element text by ID safely
+  updateElementText(id, text) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
   },
 
   buyItem(itemId) {

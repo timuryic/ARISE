@@ -85,7 +85,43 @@ const i18n = {
             // Account modal
             accountTitle: 'АККАУНТ', accountEmail: 'Email', accountPassword: 'Пароль', accountNickname: 'Никнейм',
             accountCreated: 'Дата регистрации', accountPlaytime: 'Время в игре', accountTotalXp: 'Всего XP',
-            accountQuests: 'Квестов', accountBestStreak: 'Лучшая серия', accountLogout: 'ВЫЙТИ', accountDays: 'дн.'
+            accountQuests: 'Квестов', accountBestStreak: 'Лучшая серия', accountLogout: 'ВЫЙТИ', accountDays: 'дн.',
+            // Auth modal
+            authLogin: 'ВХОД В СИСТЕМУ', authRegister: 'РЕГИСТРАЦИЯ', authForgot: 'ВОССТАНОВЛЕНИЕ',
+            authEmailLabel: 'Email', authPasswordLabel: 'Пароль', authHunterName: 'Имя Охотника',
+            authLoginBtn: 'ВОЙТИ', authRegisterBtn: 'СОЗДАТЬ ОХОТНИКА', authRecoverBtn: 'ВОССТАНОВИТЬ',
+            authForgotLink: 'Забыли пароль?', authNoAccount: 'Нет аккаунта?', authRegisterLink: 'Регистрация',
+            authHaveAccount: 'Уже есть аккаунт?', authLoginLink: 'Войти', authRememberPassword: 'Вспомнили пароль?',
+            authPasswordPlaceholder: 'Минимум 6 символов', authConfirmPlaceholder: 'Повторите пароль',
+            authFillFields: 'Заполните все поля', authPasswordMin: 'Пароль минимум 6 символов',
+            authPasswordMismatch: 'Пароли не совпадают', authEmailSent: 'Ссылка отправлена на email!',
+            // New Password modal
+            newPasswordTitle: 'НОВЫЙ ПАРОЛЬ', newPasswordDesc: 'Введите новый пароль для вашего аккаунта',
+            newPasswordLabel: 'Новый пароль', newPasswordConfirm: 'Подтвердите пароль',
+            newPasswordSave: 'СОХРАНИТЬ ПАРОЛЬ', passwordSaved: 'Пароль успешно изменён!',
+            // Victory modal
+            victoryTitle: 'ПОБЕДА!', victoryRewards: 'НАГРАДЫ', victoryClaim: 'ЗАБРАТЬ НАГРАДУ',
+            // Edit quest modal
+            editTitle: 'РЕДАКТИРОВАТЬ', newQuestTitle: 'НОВЫЙ КВЕСТ',
+            editName: 'Название', editIcon: 'Иконка', editTarget: 'Цель (количество)',
+            editUnit: 'Единица измерения', editStat: 'Характеристика',
+            editCancel: 'Отмена', editSave: 'Сохранить', editDelete: 'Удалить квест',
+            editStatOptions: { str: 'STR (Сила)', vit: 'VIT (Выносливость)', agi: 'AGI (Ловкость)', int: 'INT (Интеллект)', sen: 'SEN (Дисциплина)' },
+            // Effects modal
+            effectsTitle: 'АКТИВНЫЕ ЭФФЕКТЫ', noActiveEffects: 'Нет активных эффектов',
+            // History modal
+            historyModalTitle: 'ИСТОРИЯ', historyEmpty: 'История пуста', historyActivity: 'АКТИВНОСТЬ',
+            // Beta welcome
+            betaTitle: 'Поздравляем с началом бета-тестирования!', betaBonus: 'Стартовый бонус начислен!',
+            betaFeatures: 'Особенности бета-версии:', betaFeature1: 'Все подземелья доступны с уровня 1',
+            betaFeature2: 'Ключи к подземельям стоят 0 золота', betaFeature3: 'Боссы созданы по образу друзей разработчика',
+            betaThanks: 'Спасибо за участие в тестировании!',
+            // Streak modal
+            streakDay: 'День', streakClaimed: 'НАГРАДА ПОЛУЧЕНА', streakComeBack: 'Приходите завтра!',
+            streakClaimBtn: 'ЗАБРАТЬ НАГРАДУ',
+            // Misc
+            welcomeBack: 'Добро пожаловать, Охотник!', nicknameSaved: 'Никнейм сохранён!',
+            passwordManaged: 'Пароль управляется системой безопасности'
         },
         en: {
             navProfile: 'Profile', navQuests: 'Quests', navRewards: 'Rewards', navShop: 'Shop', navGates: 'Gates', navHistory: 'History',
@@ -166,7 +202,43 @@ const i18n = {
             // Account modal
             accountTitle: 'ACCOUNT', accountEmail: 'Email', accountPassword: 'Password', accountNickname: 'Nickname',
             accountCreated: 'Registered', accountPlaytime: 'Play time', accountTotalXp: 'Total XP',
-            accountQuests: 'Quests', accountBestStreak: 'Best streak', accountLogout: 'LOGOUT', accountDays: 'days'
+            accountQuests: 'Quests', accountBestStreak: 'Best streak', accountLogout: 'LOGOUT', accountDays: 'days',
+            // Auth modal
+            authLogin: 'LOGIN', authRegister: 'REGISTER', authForgot: 'RECOVERY',
+            authEmailLabel: 'Email', authPasswordLabel: 'Password', authHunterName: 'Hunter Name',
+            authLoginBtn: 'LOGIN', authRegisterBtn: 'CREATE HUNTER', authRecoverBtn: 'RECOVER',
+            authForgotLink: 'Forgot password?', authNoAccount: 'No account?', authRegisterLink: 'Register',
+            authHaveAccount: 'Already have an account?', authLoginLink: 'Login', authRememberPassword: 'Remember password?',
+            authPasswordPlaceholder: 'Minimum 6 characters', authConfirmPlaceholder: 'Repeat password',
+            authFillFields: 'Fill in all fields', authPasswordMin: 'Password minimum 6 characters',
+            authPasswordMismatch: 'Passwords do not match', authEmailSent: 'Link sent to email!',
+            // New Password modal
+            newPasswordTitle: 'NEW PASSWORD', newPasswordDesc: 'Enter a new password for your account',
+            newPasswordLabel: 'New password', newPasswordConfirm: 'Confirm password',
+            newPasswordSave: 'SAVE PASSWORD', passwordSaved: 'Password changed successfully!',
+            // Victory modal
+            victoryTitle: 'VICTORY!', victoryRewards: 'REWARDS', victoryClaim: 'CLAIM REWARD',
+            // Edit quest modal
+            editTitle: 'EDIT', newQuestTitle: 'NEW QUEST',
+            editName: 'Name', editIcon: 'Icon', editTarget: 'Target (amount)',
+            editUnit: 'Unit', editStat: 'Stat',
+            editCancel: 'Cancel', editSave: 'Save', editDelete: 'Delete quest',
+            editStatOptions: { str: 'STR (Strength)', vit: 'VIT (Vitality)', agi: 'AGI (Agility)', int: 'INT (Intelligence)', sen: 'SEN (Discipline)' },
+            // Effects modal
+            effectsTitle: 'ACTIVE EFFECTS', noActiveEffects: 'No active effects',
+            // History modal
+            historyModalTitle: 'HISTORY', historyEmpty: 'History is empty', historyActivity: 'ACTIVITY',
+            // Beta welcome
+            betaTitle: 'Congratulations on joining the beta test!', betaBonus: 'Starting bonus credited!',
+            betaFeatures: 'Beta features:', betaFeature1: 'All dungeons available from level 1',
+            betaFeature2: 'Dungeon keys cost 0 gold', betaFeature3: 'Bosses are based on developer friends',
+            betaThanks: 'Thanks for participating in testing!',
+            // Streak modal
+            streakDay: 'Day', streakClaimed: 'REWARD CLAIMED', streakComeBack: 'Come back tomorrow!',
+            streakClaimBtn: 'CLAIM REWARD',
+            // Misc
+            welcomeBack: 'Welcome back, Hunter!', nicknameSaved: 'Nickname saved!',
+            passwordManaged: 'Password managed by security system'
         }
     },
 
