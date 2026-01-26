@@ -40,6 +40,28 @@ const Quests = {
         const oldProgress = Storage.load(Storage.KEYS.QUESTS);
         if (oldProgress && oldProgress.date !== Storage.getTodayString()) {
             this.saveToHistory(oldProgress);
+
+            // Check for XP Penalty
+            if (!Character.isElixirActive()) {
+                let incompleteCount = 0;
+                this.definitions.forEach(q => {
+                    const questProgress = oldProgress.quests[q.id];
+                    if (!questProgress || !questProgress.completed) {
+                        incompleteCount++;
+                    }
+                });
+
+                if (incompleteCount > 0) {
+                    const penalty = incompleteCount * 40;
+                    Character.removeXp(penalty);
+                    // Store penalty info to show notification on load
+                    Storage.save('arise_daily_penalty', { amount: penalty, count: incompleteCount });
+                }
+            } else {
+                // Elixir saved you
+                Storage.save('arise_elixir_saved', { date: Storage.getTodayString() });
+            }
+
             const allCompleted = this.definitions.every(q => oldProgress.quests[q.id]?.completed);
             if (allCompleted) {
                 Character.incrementStreak();

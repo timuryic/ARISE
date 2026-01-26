@@ -19,7 +19,9 @@ const App = {
       }, 1500);
     }
 
-    this.cacheElements(); this.setupEventListeners(); this.renderAll(); this.registerServiceWorker();
+    this.cacheElements(); this.setupEventListeners(); this.updateLanguage(); this.registerServiceWorker();
+    this.updateEffectsStatus(); // Check on load
+    this.renderAll();
 
     // Auth listeners
     if (window.SupabaseClient) {
@@ -43,6 +45,25 @@ const App = {
     }
 
     document.addEventListener('click', () => { SoundManager.init(); SoundManager.play('click'); }, { once: true });
+
+    // Check for penalty
+    const penaltyData = Storage.load('arise_daily_penalty');
+    if (penaltyData) {
+      setTimeout(() => {
+        this.showNotification('ОПОВЕЩЕНИЕ', `${i18n.t('penaltyNotification')} (-${penaltyData.amount} XP)`, 'error');
+        Storage.remove('arise_daily_penalty');
+      }, 2000);
+    }
+
+    // Check for elixir save
+    const elixirSaved = Storage.load('arise_elixir_saved');
+    if (elixirSaved) {
+      setTimeout(() => {
+        this.showNotification('ЭЛИКСИР', i18n.t('elixirActive'), 'success');
+        Storage.remove('arise_elixir_saved');
+      }, 2000);
+    }
+
     console.log('ARISE System Online.');
   },
 
@@ -157,7 +178,9 @@ const App = {
     } else { document.querySelector('.rank-progress').style.display = 'none'; }
     this.elements.avatarGlow.style.background = `radial-gradient(circle, ${rank.glowColor} 0%, transparent 70%)`;
     this.elements.avatarContainer.style.borderColor = rank.color;
+    this.elements.avatarContainer.style.borderColor = rank.color;
     this.elements.avatarImage.src = rank.avatar || 'assets/hunter-avatar.png';
+    this.updateEffectsStatus();
   },
 
   renderQuests() {
@@ -558,8 +581,9 @@ const App = {
     document.querySelector('.quest-panel-title').textContent = i18n.t('questTitle');
     document.querySelector('.quest-subtitle').innerHTML = i18n.t('questSubtitle');
     document.querySelector('.quest-goals-title').textContent = i18n.t('questGoals');
-    document.querySelector('.warning-banner').innerHTML = i18n.t('questWarning');
-    document.querySelector('.warning-banner').innerHTML = i18n.t('questWarning');
+    document.querySelector('.warning-banner').innerHTML = i18n.t('penaltyWarning');
+    const elixirBtn = document.getElementById('btn-drink-elixir');
+    if (elixirBtn) elixirBtn.textContent = i18n.t('elixirBtn');
 
     // Update IDs for titles
     if (document.getElementById('title-shop')) document.getElementById('title-shop').textContent = i18n.t('shopTitle');
@@ -605,6 +629,107 @@ const App = {
   },
 
   surrenderRaid() { if (confirm('Вы уверены? Ключ будет потерян.')) { Dungeon.failRaid('Surrendered'); this.renderDungeons(); } },
+
+  // === ELIXIR MODAL ===
+  showElixirModal() {
+    document.getElementById('elixir-modal').classList.add('active');
+  },
+
+  closeElixirModal() {
+    document.getElementById('elixir-modal').classList.remove('active');
+  },
+
+  // === EFFECTS STATUS & MODAL ===
+
+  updateEffectsStatus() {
+    const btn = document.getElementById('effects-btn');
+    if (!btn) return;
+
+    const isActive = Character.isElixirActive();
+    if (isActive) {
+      btn.classList.add('active');
+      btn.style.opacity = '1';
+    } else {
+      btn.classList.remove('active');
+      btn.style.opacity = '0.5';
+    }
+  },
+
+  showEffectsModal() {
+    document.getElementById('effects-modal-title').textContent = i18n.t('activeEffects');
+    document.getElementById('effects-modal').classList.add('active');
+    this.updateEffectsModal();
+    this.effectsInterval = setInterval(() => this.updateEffectsModal(), 1000);
+  },
+
+  closeEffectsModal() {
+    document.getElementById('effects-modal').classList.remove('active');
+    if (this.effectsInterval) clearInterval(this.effectsInterval);
+  },
+
+  updateEffectsModal() {
+    const list = document.getElementById('active-effects-list');
+    const emptyMsg = document.getElementById('no-effects-msg');
+    list.innerHTML = '';
+
+    const isActive = Character.isElixirActive();
+
+    if (isActive) {
+      emptyMsg.style.display = 'none';
+
+      // Calculate remaining time
+      const now = new Date();
+      const expiry = new Date(Character.data.elixirExpiresAt);
+      const diff = expiry - now;
+
+      if (diff > 0) {
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+        const timeString = `${hours}h ${minutes}m ${seconds}s`;
+
+        const item = document.createElement('div');
+        item.className = 'effect-item';
+        item.innerHTML = `
+                  <div class="effect-icon">🧪</div>
+                  <div class="effect-info">
+                      <div class="effect-name">${i18n.t('shopItems').elixir_hp.name}</div>
+                      <div class="effect-timer">${i18n.t('timeRemaining')}: ${timeString}</div>
+                  </div>
+              `;
+        list.appendChild(item);
+      } else {
+        // Expired just now
+        this.updateEffectsStatus();
+        emptyMsg.style.display = 'block';
+      }
+
+    } else {
+      emptyMsg.style.display = 'block';
+      emptyMsg.textContent = i18n.t('noEffects');
+    }
+  },
+
+  confirmElixirPurchase() {
+    // Find item price
+    const item = Shop.items.find(i => i.id === 'elixir_hp');
+    if (!item) return; // Should not happen
+
+    if (Character.spendGold(item.price)) {
+      Character.activateElixir(24);
+      SoundManager.play('rankup'); // Using rankup sound for epic effect
+      this.showNotification('SHOP', `${i18n.t('shopMsgs').bought} ${i18n.t('shopItems').elixir_hp.name}!`, 'success');
+      this.showNotification('EFFECT', i18n.t('elixirActive'), 'info');
+      this.renderProfile();
+      History.add('SHOP', `Activated Elixir of Life (24h protection)`);
+      this.closeElixirModal();
+    } else {
+      SoundManager.play('undo');
+      this.showNotification('SHOP', i18n.t('shopMsgs').noGold, 'error');
+      this.closeElixirModal();
+    }
+  },
 
   showNotification(title, message, type = 'info') {
     const container = document.getElementById('notification-container');

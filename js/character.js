@@ -23,7 +23,8 @@ const Character = {
         streak: 0,
         bestStreak: 0,
         lastLoginDate: null,
-        createdAt: null
+        createdAt: null,
+        elixirExpiresAt: null
     },
 
     checkDailyLogin() {
@@ -126,6 +127,21 @@ const Character = {
             return true;
         }
         return false;
+    },
+
+    activateElixir(hours = 24) {
+        const now = new Date();
+        const expiration = new Date(now.getTime() + hours * 60 * 60 * 1000);
+        this.data.elixirExpiresAt = expiration.toISOString();
+        this.save();
+        return this.data.elixirExpiresAt;
+    },
+
+    isElixirActive() {
+        if (!this.data.elixirExpiresAt) return false;
+        const now = new Date();
+        const expiration = new Date(this.data.elixirExpiresAt);
+        return now < expiration;
     },
 
     ranks: [

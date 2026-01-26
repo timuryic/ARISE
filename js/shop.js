@@ -16,6 +16,11 @@ const Shop = {
     },
 
     buyItem(itemId) {
+        if (itemId === 'elixir_hp') {
+            App.showElixirModal();
+            return { success: null, message: '' }; // Handled by modal
+        }
+
         const item = this.items.find(i => i.id === itemId);
         if (!item) return { success: false, message: i18n.t('shopMsgs').notFound };
 

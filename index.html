@@ -24,7 +24,7 @@
     rel="stylesheet">
 
   <!-- Styles -->
-  <link rel="stylesheet" href="css/style.css?v=7">
+  <link rel="stylesheet" href="css/style.css?v=9">
   <link rel="stylesheet" href="css/animations.css">
 </head>
 
@@ -66,8 +66,13 @@
               <h2 class="player-name" id="player-name">HUNTER</h2>
               <button class="account-btn" id="account-btn" onclick="App.showAccountModal()" title="Account">👤</button>
             </div>
-            <div class="player-gold" id="player-gold">
-              <span class="gold-icon">🪙</span> <span id="gold-amount">0</span> <span class="gold-label">GOLD</span>
+            <div class="player-gold-row">
+              <div class="player-gold" id="player-gold">
+                <span class="gold-icon">🪙</span> <span id="gold-amount">0</span> <span class="gold-label">GOLD</span>
+              </div>
+              <button id="effects-btn" class="effects-btn" onclick="App.showEffectsModal()" title="Active Effects">
+                ✨
+              </button>
             </div>
           </div>
 
@@ -184,8 +189,7 @@
           </div>
 
           <div class="warning-banner">
-            <strong>ВНИМАНИЕ:</strong> Невыполнение ежедневного квеста приведёт к соответствующему
-            <strong>штрафу</strong>.
+            <strong>ВНИМАНИЕ:</strong> Невыполнение квеста = <strong>-40 XP</strong> (за каждый).
           </div>
         </div>
       </section>
@@ -755,9 +759,49 @@
     </div>
   </div>
 
+  <!-- Elixir Modal -->
+  <div class="modal-overlay" id="elixir-modal">
+    <div class="modal-content quest-panel"
+      style="width: 90%; max-width: 450px; text-align: center; padding: 0; overflow: hidden; border: 2px solid var(--color-accent-cyan);">
+      <div style="position: relative;">
+        <img src="assets/elixir_modal_bg.jpg" alt="Elixir" style="width: 100%; display: block;">
+        <div style="position: absolute; top: 10px; right: 10px; cursor: pointer; z-index: 10;"
+          onclick="App.closeElixirModal()">
+          <span
+            style="background: rgba(0,0,0,0.7); color: white; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 20px;">×</span>
+        </div>
+      </div>
+      <div style="padding: 15px; background: var(--color-bg-card);">
+        <button class="btn btn-primary" id="btn-drink-elixir" onclick="App.confirmElixirPurchase()"
+          style="width: 100%; font-size: 1.1rem; background: linear-gradient(45deg, #00d9ff, #4a9eff); border: none; box-shadow: 0 0 15px rgba(0, 217, 255, 0.4);">
+          ПОНЯТНО, ВЫПИТЬ ЭЛИКСИР
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Notification Container -->
 
   <div id="notification-container" class="notification-container"></div>
+
+  <!-- Active Effects Modal -->
+  <div class="modal-overlay" id="effects-modal">
+    <div class="modal-content quest-panel" style="width: 90%; max-width: 400px;">
+      <div class="quest-panel-header">
+        <div class="quest-panel-icon">✨</div>
+        <div class="quest-panel-title" id="effects-modal-title">АКТИВНЫЕ ЭФФЕКТЫ</div>
+        <span class="quest-panel-close" onclick="App.closeEffectsModal()">×</span>
+      </div>
+      <div style="padding: 20px;">
+        <div id="active-effects-list" class="effects-list">
+          <!-- Effects injected by JS -->
+        </div>
+        <div id="no-effects-msg" style="text-align: center; color: var(--color-text-secondary); padding: 20px;">
+          Нет активных эффектов
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -784,7 +828,7 @@
   <script src="js/shadows.js"></script>
   <script src="js/particles.js"></script>
   <script src="js/supabase.js"></script>
-  <script src="js/app.js?v=7"></script>
+  <script src="js/app.js?v=9"></script>
 </body>
 
 </html>
